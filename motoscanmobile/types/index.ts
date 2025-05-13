@@ -13,7 +13,12 @@ export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
   Home: undefined;
+  Detalhes: undefined;
+  Cadastrar: undefined;
+  Motos: undefined;
+  Patio: undefined;
   RegisterMoto: undefined;
   MotoList: undefined;
   MotoDetail: { moto: Moto };
 };
+
