@@ -1,72 +1,116 @@
-// screens/MotoDetailScreen.tsx
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import type { RootStackParamList } from '../types';
+// screens/MotoListScreen.tsx
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList, Moto } from '../types';
 
-type MotoDetailRouteProp = RouteProp<RootStackParamList, 'MotoDetail'>;
+const imageMap: Record<string, any> = {
+  'MOTO SPORT': require('../assets/sport-2.webp'),
+  'POP': require('../assets/pop.webp'),
+  'MOTO E': require('../assets/e-1.webp'),
+  'MOTO ELÉTRICA': require('../assets/e-1.webp')
+};
 
-const MotoDetailScreen: React.FC = () => {
-  const route = useRoute<MotoDetailRouteProp>();
-  const { moto } = route.params;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
 
-  const getStatusText = () => {
-    if (moto.status.roubada) return 'BO (Roubada)';
-    if (moto.status.falhaMecanica) return 'Problema Mecânico';
-    return 'Pronta para alugar';
+const MotoListScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
+  const [motos, setMotos] = useState<Moto[]>([]);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    const fetchMotos = async () => {
+      const data = await AsyncStorage.getItem('motos');
+      if (data) {
+        const parsed = JSON.parse(data);
+        const mapped = parsed.map((moto: any) => ({
+          ...moto,
+          imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
+        }));
+        setMotos(mapped);
+      }
+    };
+    if (isFocused) fetchMotos();
+  }, [isFocused]);
+
+  const getStatusColor = (moto: Moto) => {
+    if (moto.status.roubada) return '#FF4D4D'; // vermelho
+    if (moto.status.falhaMecanica) return '#FFA500'; // laranja
+    return '#00C247'; // verde
   };
 
-  const getStatusColor = () => {
-    if (moto.status.roubada) return '#FF4D4D';
-    if (moto.status.falhaMecanica) return '#FFA500';
-    return '#00C247';
+  const getDescricaoSituacao = (moto: Moto) => {
+    if (moto.status.roubada || moto.status.multa) return 'A moto está registrada com um boletim de ocorrência.';
+    if (moto.status.falhaMecanica) return 'A moto apresenta falha mecânica e está indisponível.';
+    return 'A moto está pronta para uso e não apresenta problemas.';
   };
+
+  const renderItem = ({ item }: { item: Moto }) => (
+    <TouchableOpacity
+      style={[styles.card, { borderColor: getStatusColor(item) }]} 
+      onPress={() => navigation.navigate('MotoDetail', { moto: item })}
+    >
+      <Image source={item.imagem} style={styles.image} />
+      <View style={styles.info}>
+        <Text style={styles.model}>{item.modelo}</Text>
+        <Text>Placa: {item.placa}</Text>
+        <Text style={styles.situacao}>{getDescricaoSituacao(item)}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Detalhes da Moto</Text>
-      <Image source={moto.imagem} style={styles.image} />
-
-      <Text style={styles.label}>Modelo:</Text>
-      <Text style={styles.value}>{moto.modelo}</Text>
-
-      <Text style={styles.label}>Placa:</Text>
-      <Text style={styles.value}>{moto.placa}</Text>
-
-      <Text style={styles.label}>Status:</Text>
-      <Text style={[styles.value, { color: getStatusColor() }]}>{getStatusText()}</Text>
+      <Text style={styles.header}>Detalhes</Text>
+      <FlatList
+        data={motos}
+        keyExtractor={(item, index) => `${item.placa}-${index}`}
+        renderItem={renderItem}
+      />
     </View>
   );
 };
 
-export default MotoDetailScreen;
+export default MotoListScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
     backgroundColor: '#fff'
   },
-  title: {
+  header: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#00C247',
-    marginBottom: 20,
-    textAlign: 'center'
+    marginBottom: 16
+  },
+  card: {
+    flexDirection: 'row',
+    borderWidth: 2,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+    alignItems: 'center'
   },
   image: {
-    width: '100%',
-    height: 200,
+    width: 70,
+    height: 70,
     resizeMode: 'contain',
-    marginBottom: 20
+    marginRight: 16
   },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 10
+  info: {
+    flex: 1
   },
-  value: {
+  model: {
     fontSize: 18,
-    marginBottom: 8
+    fontWeight: 'bold'
+  },
+  situacao: {
+    marginTop: 6,
+    fontSize: 14,
+    color: '#555'
   }
 });
