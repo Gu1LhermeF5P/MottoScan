@@ -1,7 +1,9 @@
+import { ImageSourcePropType } from 'react-native';
+
 export type Moto = {
   modelo: string;
   placa: string;
-  imagem:string;
+  imagem: ImageSourcePropType;
   status: {
     multa: boolean;
     falhaMecanica: boolean;

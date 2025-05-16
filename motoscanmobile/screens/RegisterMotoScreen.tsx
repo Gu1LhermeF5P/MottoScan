@@ -4,6 +4,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList } 
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/index';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const motoModelos = [
   { nome: 'MOTO SPORT', imagem: require('../assets/sport-2.webp') },
@@ -18,10 +19,34 @@ const RegisterMotoScreen: React.FC = () => {
   const [modeloSelecionado, setModeloSelecionado] = useState(motoModelos[0]);
   const [status, setStatus] = useState<'BO' | 'MECANICO' | 'PRONTA'>('PRONTA');
 
-  const salvarCadastro = () => {
-    console.log({ modelo: modeloSelecionado.nome, placa, status });
-    navigation.navigate('Motos');
+  const salvarCadastro = async () => {
+  if (!placa.trim()) {
+    alert('Por favor, insira a placa da moto.');
+    return;
+  }
+
+  const novaMoto = {
+    modelo: modeloSelecionado.nome,
+    placa,
+    imagem: modeloSelecionado.imagem,
+    status: {
+      roubada: status === 'BO',
+      falhaMecanica: status === 'MECANICO',
+      multa: status === 'BO',
+    }
   };
+
+  try {
+    const data = await AsyncStorage.getItem('motos');
+    const listaAtual = data ? JSON.parse(data) : [];
+    const novaLista = [...listaAtual, novaMoto];
+    await AsyncStorage.setItem('motos', JSON.stringify(novaLista));
+    navigation.navigate('Motos');
+  } catch (error) {
+    console.error('Erro ao salvar moto:', error);
+    alert('Erro ao salvar a moto.');
+  }
+};
 
   return (
     <View style={styles.container}>

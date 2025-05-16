@@ -1,57 +1,66 @@
 // screens/MotoListScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, Moto } from '../types/index';
+import type { RootStackParamList, Moto } from '../types';
 
-type Status = 'BO' | 'MECANICO' | 'PRONTA';
+const imageMap: Record<string, any> = {
+  'MOTO SPORT': require('../assets/sport-2.webp'),
+  'POP': require('../assets/pop.webp'),
+  'MOTO E': require('../assets/e-1.webp'),
+  'MOTO ELÉTRICA': require('../assets/e-1.webp')
+};
 
-const mockMotos: Moto[] = [
-  { modelo: 'POP', placa: 'ABC1234', imagem: '../assets/pop.webp', status: { multa: false, falhaMecanica: true, roubada: false } },
-  { modelo: 'MOTO SPORT', placa: 'XYZ5678', imagem: '../assets/sport-2.webp', status: { multa: true, falhaMecanica: false, roubada: false } },
-  { modelo: 'MOTO ELÉTRICA', placa: 'EFG9101', imagem: '../assets/e-1.webp', status: { multa: false, falhaMecanica: false, roubada: false } },
-];
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
 
 const MotoListScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NavigationProp>();
   const [motos, setMotos] = useState<Moto[]>([]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    // Simulando busca local
-    setMotos(mockMotos);
-  }, []);
+    const fetchMotos = async () => {
+      const data = await AsyncStorage.getItem('motos');
+      if (data) {
+        const parsed = JSON.parse(data);
+        const mapped = parsed.map((moto: any) => ({
+          ...moto,
+          imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
+        }));
+        setMotos(mapped);
+      }
+    };
+    if (isFocused) fetchMotos();
+  }, [isFocused]);
 
-  const getStatusCor = (moto: Moto) => {
-    if (moto.status.roubada || moto.status.multa) return '#FF3B30'; // vermelho
+  const getStatusColor = (moto: Moto) => {
+    if (moto.status.roubada) return '#FF4D4D'; // vermelho
     if (moto.status.falhaMecanica) return '#FFA500'; // laranja
     return '#00C247'; // verde
   };
 
-  const getStatusTexto = (moto: Moto): string => {
-    if (moto.status.roubada || moto.status.multa) return 'BO';
-    if (moto.status.falhaMecanica) return 'Problema Mecânico';
-    return 'Pronta';
-  };
+  const renderItem = ({ item }: { item: Moto }) => (
+    <TouchableOpacity
+      style={[styles.card, { borderColor: getStatusColor(item) }]} 
+      onPress={() => navigation.navigate('MotoDetail', { moto: item })}
+    >
+      <Image source={item.imagem} style={styles.image} />
+      <View style={styles.info}>
+        <Text style={styles.model}>{item.modelo}</Text>
+        <Text>Placa: {item.placa}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Lista de Motos</Text>
+      <Text style={styles.header}>Lista de Motos</Text>
       <FlatList
         data={motos}
-        keyExtractor={(item) => item.placa}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.card, { borderLeftColor: getStatusCor(item) }]}
-            onPress={() => navigation.navigate('MotoDetail', { moto: item })}
-          >
-            <View style={styles.cardContent}>
-              <Text style={styles.model}>{item.modelo}</Text>
-              <Text style={styles.placa}>Placa: {item.placa}</Text>
-              <Text style={[styles.status, { color: getStatusCor(item) }]}>{getStatusTexto(item)}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
+        keyExtractor={(item, index) => `${item.placa}-${index}`}
+        renderItem={renderItem}
       />
     </View>
   );
@@ -63,34 +72,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff'
   },
-  title: {
-    fontSize: 22,
+  header: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 12,
     color: '#00C247',
+    marginBottom: 16
   },
   card: {
-    borderLeftWidth: 8,
-    backgroundColor: '#F5F5F5',
-    padding: 12,
+    flexDirection: 'row',
+    borderWidth: 2,
     borderRadius: 8,
-    marginBottom: 10,
+    padding: 10,
+    marginBottom: 12,
+    alignItems: 'center'
   },
-  cardContent: {
-    flexDirection: 'column',
+  image: {
+    width: 70,
+    height: 70,
+    resizeMode: 'contain',
+    marginRight: 16
+  },
+  info: {
+    flex: 1
   },
   model: {
     fontSize: 18,
-    fontWeight: '600',
-  },
-  placa: {
-    fontSize: 16,
-    color: '#555',
-  },
-  status: {
-    marginTop: 6,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'
+  }
 });
