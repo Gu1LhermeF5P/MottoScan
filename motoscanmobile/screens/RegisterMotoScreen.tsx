@@ -1,59 +1,72 @@
+// screens/RegisterMotoScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/index';
 
-const motoModels = [
-  { name: 'MOTO SPORT', image: require('../assets/sport-2.webp') },
-  { name: 'POP', image: require('../assets/pop.webp') },
-  { name: 'MOTO ELÉTRICA', image: require('../assets/e-1.webp') },
+const motoModelos = [
+  { nome: 'MOTO SPORT', imagem: require('../assets/sport-2.webp') },
+  { nome: 'POP', imagem: require('../assets/pop.webp') },
+  { nome: 'MOTO E', imagem: require('../assets/e-1.webp') },
 ];
 
 const RegisterMotoScreen: React.FC = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const [placa, setPlaca] = useState('');
-  const [modelo, setModelo] = useState<string | null>(null);
+  const [modeloSelecionado, setModeloSelecionado] = useState(motoModelos[0]);
+  const [status, setStatus] = useState<'BO' | 'MECANICO' | 'PRONTA'>('PRONTA');
 
-  const handleSubmit = () => {
-    if (!placa || !modelo) {
-      Alert.alert('Erro', 'Preencha todos os campos!');
-      return;
-    }
-
-    // Simule salvar com AsyncStorage
-    Alert.alert('Sucesso', `Moto ${modelo} com placa ${placa} cadastrada!`);
-    setPlaca('');
-    setModelo(null);
+  const salvarCadastro = () => {
+    console.log({ modelo: modeloSelecionado.nome, placa, status });
+    navigation.navigate('Motos');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cadastro de Moto</Text>
+      <Text style={styles.title}>Cadastrar Moto</Text>
 
+      <Text style={styles.label}>Placa:</Text>
       <TextInput
         style={styles.input}
-        placeholder="Digite a placa"
-        placeholderTextColor="#888"
         value={placa}
         onChangeText={setPlaca}
+        placeholder="Digite a placa"
       />
 
-      <Text style={styles.subtitle}>Selecione o modelo:</Text>
-      <View style={styles.modelContainer}>
-        {motoModels.map((item) => (
+      <Text style={styles.label}>Modelo:</Text>
+      <FlatList
+        horizontal
+        data={motoModelos}
+        keyExtractor={(item) => item.nome}
+        renderItem={({ item }) => (
           <TouchableOpacity
-            key={item.name}
-            style={[
-              styles.modelCard,
-              modelo === item.name && styles.modelCardSelected,
-            ]}
-            onPress={() => setModelo(item.name)}
+            style={[styles.modelBox, modeloSelecionado.nome === item.nome && styles.modelBoxSelected]}
+            onPress={() => setModeloSelecionado(item)}
           >
-            <Image source={item.image} style={styles.modelImage} />
-            <Text style={styles.modelName}>{item.name}</Text>
+            <Image source={item.imagem} style={styles.modelImage} />
+            <Text style={styles.modelText}>{item.nome}</Text>
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={{ paddingVertical: 10 }}
+      />
+
+      <Text style={styles.label}>Status:</Text>
+      <View style={styles.statusContainer}>
+        {['BO', 'MECANICO', 'PRONTA'].map((s) => (
+          <TouchableOpacity
+            key={s}
+            style={[styles.statusButton, status === s && styles.statusSelected]}
+            onPress={() => setStatus(s as typeof status)}
+          >
+            <Text style={styles.statusText}>{s}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Cadastrar Moto</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={salvarCadastro}>
+        <Text style={styles.saveButtonText}>Salvar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -64,67 +77,81 @@ export default RegisterMotoScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     padding: 20,
-    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
-    color: '#00C247',
     fontWeight: 'bold',
+    color: '#00C247',
     marginBottom: 20,
+    alignSelf: 'center'
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
   },
   input: {
-    width: '100%',
-    height: 50,
-    borderColor: '#00C247',
     borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    marginBottom: 20,
-    color: '#000',
+    marginBottom: 15,
   },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    alignSelf: 'flex-start',
-  },
-  modelContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 20,
-  },
-  modelCard: {
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
+  modelBox: {
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
     borderRadius: 10,
-    padding: 8,
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
   },
-  modelCardSelected: {
+  modelBoxSelected: {
     borderColor: '#00C247',
-    backgroundColor: '#E6F9F0',
+    backgroundColor: '#e6f8ed',
   },
   modelImage: {
     width: 80,
-    height: 60,
+    height: 50,
     resizeMode: 'contain',
     marginBottom: 5,
   },
-  modelName: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#333',
+  modelText: {
+    fontSize: 14,
+    textAlign: 'center',
   },
-  button: {
+  statusContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  statusButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: '#ccc',
+    alignItems: 'center',
+  },
+  statusSelected: {
     backgroundColor: '#00C247',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 10,
+    borderColor: '#00C247',
   },
-  buttonText: {
+  statusText: {
+    color: '#000',
+    fontWeight: '600',
+  },
+  saveButton: {
+    marginTop: 20,
+    backgroundColor: '#00C247',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  saveButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
