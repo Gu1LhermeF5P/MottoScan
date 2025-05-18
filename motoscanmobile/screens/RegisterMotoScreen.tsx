@@ -1,6 +1,8 @@
 // screens/RegisterMotoScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
+import {
+  View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/index';
@@ -18,47 +20,76 @@ const RegisterMotoScreen: React.FC = () => {
   const [placa, setPlaca] = useState('');
   const [modeloSelecionado, setModeloSelecionado] = useState(motoModelos[0]);
   const [status, setStatus] = useState<'BO' | 'MECANICO' | 'PRONTA'>('PRONTA');
+  const [erroPlaca, setErroPlaca] = useState('');
 
-  const salvarCadastro = async () => {
-  if (!placa.trim()) {
-    alert('Por favor, insira a placa da moto.');
-    return;
-  }
+  const validarPlaca = (texto: string) => {
+    const placaFormatada = texto.toUpperCase();
+    setPlaca(placaFormatada);
 
-  const novaMoto = {
-    modelo: modeloSelecionado.nome,
-    placa,
-    imagem: modeloSelecionado.imagem,
-    status: {
-      roubada: status === 'BO',
-      falhaMecanica: status === 'MECANICO',
-      multa: status === 'BO',
+    // Valida formatos: Antiga (ABC1234) ou Mercosul (ABC1D23)
+    const placaAntiga = /^[A-Z]{3}[0-9]{4}$/;
+    const placaMercosul = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+
+    if (
+      placaFormatada.length === 7 &&
+      !placaAntiga.test(placaFormatada) &&
+      !placaMercosul.test(placaFormatada)
+    ) {
+      setErroPlaca('Placa inválida. Use o formato ABC1234 ou ABC1D23.');
+    } else {
+      setErroPlaca('');
     }
   };
 
-  try {
-    const data = await AsyncStorage.getItem('motos');
-    const listaAtual = data ? JSON.parse(data) : [];
-    const novaLista = [...listaAtual, novaMoto];
-    await AsyncStorage.setItem('motos', JSON.stringify(novaLista));
-    navigation.navigate('Motos');
-  } catch (error) {
-    console.error('Erro ao salvar moto:', error);
-    alert('Erro ao salvar a moto.');
-  }
-};
+  const salvarCadastro = async () => {
+    if (!placa.trim()) {
+      setErroPlaca('Por favor, insira a placa da moto.');
+      return;
+    }
+
+    if (erroPlaca) {
+      alert('Corrija o erro na placa antes de continuar.');
+      return;
+    }
+
+    const novaMoto = {
+      modelo: modeloSelecionado.nome,
+      placa,
+      imagem: modeloSelecionado.imagem,
+      zona: 'A',
+      status: {
+        roubada: status === 'BO',
+        falhaMecanica: status === 'MECANICO',
+        multa: status === 'BO',
+      }
+    };
+
+    try {
+      const data = await AsyncStorage.getItem('motos');
+      const listaAtual = data ? JSON.parse(data) : [];
+      const novaLista = [...listaAtual, novaMoto];
+      await AsyncStorage.setItem('motos', JSON.stringify(novaLista));
+      navigation.navigate('Motos');
+    } catch (error) {
+      console.error('Erro ao salvar moto:', error);
+      alert('Erro ao salvar a moto.');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Cadastrar Moto</Text>
 
-      <Text style={styles.label}>Placa:</Text>
+      <Text style={styles.label}>Placa (ex: ABC1234 ou ABC1D23):</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, erroPlaca ? styles.inputErro : null]}
         value={placa}
-        onChangeText={setPlaca}
+        onChangeText={validarPlaca}
         placeholder="Digite a placa"
+        maxLength={7}
+        autoCapitalize="characters"
       />
+      {erroPlaca ? <Text style={styles.erroTexto}>{erroPlaca}</Text> : null}
 
       <Text style={styles.label}>Modelo:</Text>
       <FlatList
@@ -67,7 +98,10 @@ const RegisterMotoScreen: React.FC = () => {
         keyExtractor={(item) => item.nome}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[styles.modelBox, modeloSelecionado.nome === item.nome && styles.modelBoxSelected]}
+            style={[
+              styles.modelBox,
+              modeloSelecionado.nome === item.nome && styles.modelBoxSelected
+            ]}
             onPress={() => setModeloSelecionado(item)}
           >
             <Image source={item.imagem} style={styles.modelImage} />
@@ -82,7 +116,15 @@ const RegisterMotoScreen: React.FC = () => {
         {['BO', 'MECANICO', 'PRONTA'].map((s) => (
           <TouchableOpacity
             key={s}
-            style={[styles.statusButton, status === s && styles.statusSelected]}
+            style={[
+              styles.statusButton,
+              status === s &&
+              (s === 'BO'
+                ? styles.statusBO
+                : s === 'MECANICO'
+                ? styles.statusMECANICO
+                : styles.statusPRONTA)
+            ]}
             onPress={() => setStatus(s as typeof status)}
           >
             <Text style={styles.statusText}>{s}</Text>
@@ -122,7 +164,15 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 8,
-    marginBottom: 15,
+    marginBottom: 5,
+  },
+  inputErro: {
+    borderColor: 'red',
+  },
+  erroTexto: {
+    color: 'red',
+    marginBottom: 10,
+    fontSize: 13,
   },
   modelBox: {
     marginRight: 10,
@@ -161,8 +211,16 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     alignItems: 'center',
   },
-  statusSelected: {
-    backgroundColor: '#00C247',
+  statusBO: {
+    backgroundColor: '#ffdddd',
+    borderColor: '#ff0000',
+  },
+  statusMECANICO: {
+    backgroundColor: '#fff7cc',
+    borderColor: '#ffcc00',
+  },
+  statusPRONTA: {
+    backgroundColor: '#e6f8ed',
     borderColor: '#00C247',
   },
   statusText: {

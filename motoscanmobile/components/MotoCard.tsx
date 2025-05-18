@@ -1,18 +1,42 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ImageStyle, ViewStyle } from 'react-native';
 import { Moto } from '../types';
 
-export default function MotoCard({ modelo, placa }: Moto) {
+type MotoCardProps = {
+  moto: Moto;
+  style?: ViewStyle | ImageStyle;
+  onPress?: () => void;
+};
+
+export default function MotoCard({ moto, style, onPress }: MotoCardProps) {
   return (
-    <View style={styles.card}>
-      <Text style={styles.modelo}>{modelo}</Text>
-      <Text style={styles.placa}>{placa}</Text>
-    </View>
+    <TouchableOpacity style={[styles.card, style]} onPress={onPress}>
+      <Image source={moto.imagem} style={styles.image} />
+      <View style={styles.info}>
+        <Text style={styles.modelo}>{moto.modelo}</Text>
+        <Text style={styles.placa}>{moto.placa}</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#f2f2f2', padding: 15, borderRadius: 8, marginBottom: 10 },
-  modelo: { fontSize: 16, fontWeight: 'bold' },
-  placa: { fontSize: 14, color: '#666' },
+  card: { 
+    position: 'absolute',
+    width: 120,
+    height: 50,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 1, height: 1 },
+    elevation: 3,
+  },
+  image: { width: 40, height: 40, borderRadius: 4 },
+  info: { marginLeft: 8 },
+  modelo: { fontWeight: 'bold' },
+  placa: { color: '#666' },
 });
