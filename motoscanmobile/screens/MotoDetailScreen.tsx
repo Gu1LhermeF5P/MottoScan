@@ -1,6 +1,6 @@
 // screens/MotoListScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,16 +29,37 @@ const MotoListScreen: React.FC = () => {
           ...moto,
           imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
         }));
-        setMotos(mapped);
+        setMotos(mapped.reverse()); // Última adicionada primeiro
+      } else {
+        setMotos([]);
       }
     };
     if (isFocused) fetchMotos();
   }, [isFocused]);
 
+  const deleteMoto = async (placa: string) => {
+    Alert.alert('Confirmar', 'Deseja realmente apagar esta moto?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: async () => {
+          const data = await AsyncStorage.getItem('motos');
+          if (data) {
+            const parsed = JSON.parse(data);
+            const updated = parsed.filter((moto: Moto) => moto.placa !== placa);
+            await AsyncStorage.setItem('motos', JSON.stringify(updated));
+            setMotos(updated.reverse());
+          }
+        }
+      }
+    ]);
+  };
+
   const getStatusColor = (moto: Moto) => {
-    if (moto.status.roubada) return '#FF4D4D'; // vermelho
-    if (moto.status.falhaMecanica) return '#FFA500'; // laranja
-    return '#00C247'; // verde
+    if (moto.status.roubada) return '#FF4D4D';
+    if (moto.status.falhaMecanica) return '#FFA500';
+    return '#00C247';
   };
 
   const getDescricaoSituacao = (moto: Moto) => {
@@ -49,7 +70,7 @@ const MotoListScreen: React.FC = () => {
 
   const renderItem = ({ item }: { item: Moto }) => (
     <TouchableOpacity
-      style={[styles.card, { borderColor: getStatusColor(item) }]} 
+      style={[styles.card, { borderColor: getStatusColor(item) }]}
       onPress={() => navigation.navigate('MotoDetail', { moto: item })}
     >
       <Image source={item.imagem} style={styles.image} />
@@ -58,17 +79,24 @@ const MotoListScreen: React.FC = () => {
         <Text>Placa: {item.placa}</Text>
         <Text style={styles.situacao}>{getDescricaoSituacao(item)}</Text>
       </View>
+      <TouchableOpacity onPress={() => deleteMoto(item.placa)} style={styles.deleteButton}>
+        <Text style={styles.deleteText}>Excluir</Text>
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Detalhes</Text>
-      <FlatList
-        data={motos}
-        keyExtractor={(item, index) => `${item.placa}-${index}`}
-        renderItem={renderItem}
-      />
+      {motos.length === 0 ? (
+        <Text style={styles.emptyText}>Nenhuma moto cadastrada no momento.</Text>
+      ) : (
+        <FlatList
+          data={motos}
+          keyExtractor={(item, index) => `${item.placa}-${index}`}
+          renderItem={renderItem}
+        />
+      )}
     </View>
   );
 };
@@ -112,5 +140,19 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 14,
     color: '#555'
+  },
+  deleteButton: {
+    padding: 8
+  },
+  deleteText: {
+    fontSize: 14,
+    color: '#FF4D4D',
+    fontWeight: 'bold'
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 40
   }
 });

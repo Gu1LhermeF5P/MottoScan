@@ -29,7 +29,9 @@ const MotoListScreen: React.FC = () => {
           ...moto,
           imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
         }));
-        setMotos(mapped);
+        setMotos(mapped.reverse()); // Última adicionada primeiro
+      } else {
+        setMotos([]);
       }
     };
     if (isFocused) fetchMotos();
@@ -57,11 +59,15 @@ const MotoListScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Lista de Motos</Text>
-      <FlatList
-        data={motos}
-        keyExtractor={(item, index) => `${item.placa}-${index}`}
-        renderItem={renderItem}
-      />
+      {motos.length === 0 ? (
+        <Text style={styles.emptyText}>Nenhuma moto cadastrada no momento.</Text>
+      ) : (
+        <FlatList
+          data={motos}
+          keyExtractor={(item, index) => `${item.placa}-${index}`}
+          renderItem={renderItem}
+        />
+      )}
     </View>
   );
 };
@@ -100,5 +106,11 @@ const styles = StyleSheet.create({
   model: {
     fontSize: 18,
     fontWeight: 'bold'
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 40
   }
 });
