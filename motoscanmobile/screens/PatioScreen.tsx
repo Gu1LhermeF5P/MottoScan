@@ -1,14 +1,11 @@
-
 import React, { useEffect, useState } from 'react';
-import {View,Text,StyleSheet,TouchableOpacity,Modal} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Moto } from '../types';
 
-
-const ZONAS = ['A', 'B', 'C', 'D', 'E', 'F'];
-const STATUS_CORES: Record<string, string> = {
+const STATUS_CORES: Record<'BO' | 'MECANICO' | 'PRONTA', string> = {
   BO: '#FF4C4C',
   MECANICO: '#FFD700',
   PRONTA: '#00C247',
@@ -53,11 +50,12 @@ const PatioScreen = () => {
     BO: [],
     MECANICO: [],
   };
+
   motosFiltradas.forEach((moto) => {
     motosPorStatus[getStatus(moto)].push(moto);
   });
 
-  const zonasMapeadas = [
+  const zonasMapeadas: { zona: string; status: 'BO' | 'MECANICO' | 'PRONTA' }[] = [
     { zona: 'A', status: 'PRONTA' },
     { zona: 'B', status: 'PRONTA' },
     { zona: 'C', status: 'BO' },
@@ -74,47 +72,51 @@ const PatioScreen = () => {
       </View>
 
       <View style={styles.filterRow}>
-      {(['PRONTA', 'BO', 'MECANICO'] as const).map((s) => (
-        <TouchableOpacity
-          key={s}
-          style={[styles.filterButton, filtroStatus === s && { backgroundColor: STATUS_CORES[s] }]}
-          onPress={() => setFiltroStatus(filtroStatus === s ? null : s)}
-        >
-          <Text style={styles.filterText}>{s}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+        {(['PRONTA', 'BO', 'MECANICO'] as const).map((s) => (
+          <TouchableOpacity
+            key={s}
+            style={[styles.filterButton, filtroStatus === s && { backgroundColor: STATUS_CORES[s] }]}
+            onPress={() => setFiltroStatus(filtroStatus === s ? null : s)}
+          >
+            <Text style={styles.filterText}>{s}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-    <TouchableOpacity
-      style={styles.verTodasButton}
-      onPress={() => setFiltroStatus(null)}
-    >
-      <Text style={styles.verTodasText}>Ver todas as motos no pátio</Text>
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.verTodasButton}
+        onPress={() => setFiltroStatus(null)}
+      >
+        <Text style={styles.verTodasText}>Ver todas as motos no pátio</Text>
+      </TouchableOpacity>
 
-      {zonasMapeadas.map(({ zona, status }, i) => {
-        const indexOffset = zonasMapeadas.filter((z) => z.status === status).findIndex((z) => z.zona === zona) * 5;
-        const motosStatus = motosPorStatus[status].slice(indexOffset, indexOffset + 5);
-        const quadrantes = Array(5).fill(null).map((_, idx) => motosStatus[idx] || null);
+      <ScrollView style={{ flex: 1 }}>
+        {zonasMapeadas.map(({ zona, status }) => {
+          const indexOffset = zonasMapeadas.filter((z) => z.status === status).findIndex((z) => z.zona === zona) * 5;
+          const motosStatus = motosPorStatus[status].slice(indexOffset, indexOffset + 5);
+          const quadrantes = Array(5).fill(null).map((_, idx) => motosStatus[idx] || null);
 
-        return (
-          <View key={zona} style={styles.zonaContainer}>
-            <Text style={styles.zonaLabel}>Zona {zona} - <Text style={styles.hint}>Toque em uma moto para detalhes</Text></Text>
-            <View style={styles.gridRow}>
-              {quadrantes.map((moto, idx) => (
-                <TouchableOpacity
-                  key={idx}
-                  style={[styles.gridBox, moto && { backgroundColor: STATUS_CORES[getStatus(moto)] }]}
-                  onPress={() => moto && setModalMoto(moto)}
-                  disabled={!moto}
-                >
-                  {moto ? <Icon name="motorbike" size={20} color="#fff" /> : null}
-                </TouchableOpacity>
-              ))}
+          return (
+            <View key={zona} style={styles.zonaContainer}>
+              <Text style={styles.zonaLabel}>
+                Zona {zona} - <Text style={styles.hint}>Toque em uma moto para detalhes</Text>
+              </Text>
+              <View style={styles.gridRow}>
+                {quadrantes.map((moto, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[styles.gridBox, moto && { backgroundColor: STATUS_CORES[getStatus(moto)] }]}
+                    onPress={() => moto && setModalMoto(moto)}
+                    disabled={!moto}
+                  >
+                    {moto ? <Icon name="motorbike" size={20} color="#fff" /> : null}
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-          </View>
-        );
-      })}
+          );
+        })}
+      </ScrollView>
 
       <Modal visible={!!modalMoto} transparent animationType="slide">
         <View style={styles.modalContainer}>
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 0,
+    padding: 20,
     width: '80%',
   },
   modalTitle: {
@@ -195,16 +197,15 @@ const styles = StyleSheet.create({
   },
   modalButtonText: { color: '#fff', fontWeight: 'bold' },
   verTodasButton: {
-  backgroundColor: '#00C247',
-  padding: 12,
-  borderRadius: 8,
-  alignItems: 'center',
-  marginBottom: 10,
-},
-verTodasText: {
-  color: '#fff',
-  fontWeight: 'bold',
-  fontSize: 16,
-},
-
+    backgroundColor: '#00C247',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  verTodasText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });
