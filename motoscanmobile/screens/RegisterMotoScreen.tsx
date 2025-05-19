@@ -1,4 +1,3 @@
-// screens/RegisterMotoScreen.tsx
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList

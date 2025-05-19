@@ -9,7 +9,7 @@ export type Moto = {
     falhaMecanica: boolean;
     roubada: boolean;
   };
- 
+  imagem:undefined;
 };
 
 export type RootStackParamList = {

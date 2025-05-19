@@ -1,4 +1,3 @@
-// screens/MotoListScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
