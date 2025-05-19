@@ -85,13 +85,21 @@ App.tsx
 ```
 
 ---
+## 📦 Bibliotecas Instaladas
 
-## 📦 Tecnologias Utilizadas
+- `react-native-vector-icons` – Ícones personalizados
+- `@react-native-async-storage/async-storage` – Armazenamento local de dados
+- `@react-navigation/native` – Navegação entre telas
+- `@react-navigation/native-stack` – Pilha de navegação
+- `react-native-screens`, `react-native-safe-area-context`, `react-native-gesture-handler`, `react-native-reanimated` – Dependências da navegação
+- `expo` – Plataforma de desenvolvimento
+- `typescript` – Tipagem estática no projeto
+  
+## 📱 Telas Desenvolvidas
 
-- React Native com Expo
-- React Navigation
-- AsyncStorage
-- TypeScript
-- Icons (MaterialCommunityIcons)
-
----
+- Tela de boas-vindas
+- Tela de cadastro de motos com formulário
+- Tela de listagem de motos
+- Tela de detalhes da moto
+- Tela de mapa inteligente com zonas e filtros
+- Modal com visualização rápida das motos por status
