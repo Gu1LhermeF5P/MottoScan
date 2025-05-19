@@ -50,36 +50,6 @@ Aplicativo mobile em React Native com Expo para mapeamento inteligente de motos 
 
 ---
 
-## ✅ Funcionalidades implementadas (Sprint 1)
-
-### 1. Navegação entre telas (✔️ 20 pontos)
-
-- Implementado com **React Navigation**
-- Telas: Boas-vindas, Cadastro, Lista de Motos, Mapa Interativo (Pátio), Detalhes
-
-### 2. Protótipo visual funcional (✔️ 30 pontos)
-
-- Telas estilizadas com cores da marca Mottu (`#00C247`)
-- Ícones interativos
-- Grid dinâmico por zona no pátio
-- Feedback visual para status das motos
-
-### 3. Formulário com estado (✔️ 20 pontos)
-
-- Tela de cadastro de motos
-- Campos controlados com `useState`
-- Informações atualizadas em tempo real na lista de motos
-
-### 4. Armazenamento local com AsyncStorage (✔️ 20 pontos)
-
-- Motos cadastradas são persistidas no dispositivo
-- Dados restaurados automaticamente ao reiniciar o app
-
-### 5. GitHub Classroom (✔️ 10 pontos)
-
-- Repositório hospedado com organização de pastas e instruções no `README.md`
-
----
 
 ## 🧠 Solução Implementada
 
