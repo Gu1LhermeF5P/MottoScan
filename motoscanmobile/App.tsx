@@ -9,6 +9,7 @@ import MotoListScreen from './screens/MotoListScreen';
 import MotoDetailScreen from './screens/MotoDetailScreen';
 import PatioScreen from './screens/PatioScreen';  
 
+
 const Tab = createBottomTabNavigator();
 
 export default function App() {
@@ -35,7 +36,7 @@ export default function App() {
         <Tab.Screen name="Cadastrar" component={RegisterScreen} />
         <Tab.Screen name="Motos" component={MotoListScreen} />
         <Tab.Screen name="Detalhes" component={MotoDetailScreen} />
-       <Tab.Screen name="Mapa" component={PatioScreen} />
+        <Tab.Screen name="Mapa" component={PatioScreen} />    
       </Tab.Navigator>
     </NavigationContainer>
   );

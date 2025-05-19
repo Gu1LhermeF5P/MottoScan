@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -28,7 +28,7 @@ const MotoListScreen: React.FC = () => {
           ...moto,
           imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
         }));
-        setMotos(mapped.reverse()); // Última adicionada primeiro
+        setMotos(mapped.reverse());
       } else {
         setMotos([]);
       }
@@ -43,17 +43,15 @@ const MotoListScreen: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: Moto }) => (
-    <TouchableOpacity
-      style={[styles.card, { borderColor: getStatusColor(item) }]} 
-      onPress={() => navigation.navigate('MotoDetail', { moto: item })}
-    >
-      <Image source={item.imagem} style={styles.image} />
-      <View style={styles.info}>
-        <Text style={styles.model}>{item.modelo}</Text>
-        <Text>Placa: {item.placa}</Text>
-      </View>
-    </TouchableOpacity>
+  <View style={[styles.card, { borderColor: getStatusColor(item) }]}>
+    <Image source={item.imagem} style={styles.image} />
+    <View style={styles.info}>
+      <Text style={styles.model}>{item.modelo}</Text>
+      <Text>Placa: {item.placa}</Text>
+    </View>
+  </View>
   );
+
 
   return (
     <View style={styles.container}>
