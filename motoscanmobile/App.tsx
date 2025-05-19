@@ -23,11 +23,11 @@ export default function App() {
             else if (route.name === 'Cadastrar') iconName = 'add-circle';
             else if (route.name === 'Motos') iconName = 'bicycle';
             else if (route.name === 'Detalhes') iconName = 'information-circle';
-            else if (route.name === 'Mapa') iconName = 'map'; // novo
+            else if (route.name === 'Mapa') iconName = 'map'; 
 
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: '#00C247', // verde Mottu
+          tabBarActiveTintColor: '#00C247', 
           tabBarInactiveTintColor: 'gray',
         })}
       >
@@ -35,7 +35,7 @@ export default function App() {
         <Tab.Screen name="Cadastrar" component={RegisterScreen} />
         <Tab.Screen name="Motos" component={MotoListScreen} />
         <Tab.Screen name="Detalhes" component={MotoDetailScreen} />
-        <Tab.Screen name="Mapa" component={PatioScreen} />
+       <Tab.Screen name="Mapa" component={PatioScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

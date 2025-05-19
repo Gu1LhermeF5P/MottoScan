@@ -1,119 +1,210 @@
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, Alert, StyleSheet, ScrollView } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Moto, Status, RootStackParamList } from '../types';
-import { getMotos, saveMoto } from '../services/storage';
-import MotoCard from '../components/MotoCard';
+import {View,Text,StyleSheet,TouchableOpacity,Modal} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Moto } from '../types';
 
-type PatioScreenProps = NativeStackScreenProps<RootStackParamList, 'Patio'>;
 
-const LIMITE_POR_ZONA = 10;
+const ZONAS = ['A', 'B', 'C', 'D', 'E', 'F'];
+const STATUS_CORES: Record<string, string> = {
+  BO: '#FF4C4C',
+  MECANICO: '#FFD700',
+  PRONTA: '#00C247',
+};
 
-const zonas = [
-  { key: 'BO', label: 'Zona BO', color: 'rgba(255, 0, 0, 0.3)', area: { left: 10, top: 10 } },
-  { key: 'MECANICO', label: 'Zona Falha Mecânica', color: 'rgba(128, 128, 128, 0.3)', area: { left: 150, top: 10 } },
-  { key: 'PRONTA', label: 'Zona Pronta', color: 'rgba(0, 196, 71, 0.3)', area: { left: 290, top: 10 } },
-];
-
-function getStatus(moto: Moto): Status {
-  if (moto.status?.multa) return 'BO';
-  if (moto.status?.falhaMecanica) return 'MECANICO';
-  return 'PRONTA';
-}
-
-export default function PatioScreen({ route }: PatioScreenProps) {
-  const motoNova = route.params?.moto;
-
+const PatioScreen = () => {
+  const navigation = useNavigation();
   const [motos, setMotos] = useState<Moto[]>([]);
+  const [filtroStatus, setFiltroStatus] = useState<'BO' | 'MECANICO' | 'PRONTA' | null>(null);
+  const [modalMoto, setModalMoto] = useState<Moto | null>(null);
+
+  const carregarMotos = async () => {
+    const data = await AsyncStorage.getItem('motos');
+    if (data) {
+      const lista = JSON.parse(data);
+      setMotos(lista);
+    }
+  };
 
   useEffect(() => {
-    async function load() {
-      let dados = await getMotos();
+    const unsubscribe = navigation.addListener('focus', carregarMotos);
+    return unsubscribe;
+  }, [navigation]);
 
-      // Filtra motos inválidas (sem status)
-      dados = dados.filter(m => m.status !== undefined);
+  const motosFiltradas = filtroStatus
+    ? motos.filter((m) => {
+        if (filtroStatus === 'BO') return m.status.roubada;
+        if (filtroStatus === 'MECANICO') return m.status.falhaMecanica;
+        if (filtroStatus === 'PRONTA') return !m.status.roubada && !m.status.falhaMecanica;
+        return true;
+      })
+    : motos;
 
-      // Se chegou uma moto nova, adiciona se não existir
-      if (motoNova && !dados.some(m => m.placa === motoNova.placa)) {
-        dados.push(motoNova);
-        await saveMoto(motoNova);
-      }
+  const getStatus = (m: Moto): 'BO' | 'MECANICO' | 'PRONTA' => {
+    if (m.status.roubada) return 'BO';
+    if (m.status.falhaMecanica) return 'MECANICO';
+    return 'PRONTA';
+  };
 
-      setMotos(dados);
-    }
-    load();
-  }, [motoNova]);
+  const motosPorStatus: Record<'PRONTA' | 'BO' | 'MECANICO', Moto[]> = {
+    PRONTA: [],
+    BO: [],
+    MECANICO: [],
+  };
+  motosFiltradas.forEach((moto) => {
+    motosPorStatus[getStatus(moto)].push(moto);
+  });
 
-  function handlePress(moto: Moto) {
-    Alert.alert(
-      'Detalhes da Moto',
-      `Modelo: ${moto.modelo}\nPlaca: ${moto.placa}\nStatus: ${getStatus(moto)}`
-    );
-  }
+  const zonasMapeadas = [
+    { zona: 'A', status: 'PRONTA' },
+    { zona: 'B', status: 'PRONTA' },
+    { zona: 'C', status: 'BO' },
+    { zona: 'D', status: 'BO' },
+    { zona: 'E', status: 'MECANICO' },
+    { zona: 'F', status: 'MECANICO' },
+  ];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Mapa do Pátio</Text>
+    <View style={styles.container}>
+      <View style={styles.titleRow}>
+        <Icon name="map" size={24} color="#00C247" style={{ marginRight: 8 }} />
+        <Text style={styles.title}>Pátio - Filial Zona Leste</Text>
+      </View>
 
-      {zonas.map((zona) => {
-        const motosZona = motos.filter(m => getStatus(m) === zona.key);
+      <View style={styles.filterRow}>
+      {(['PRONTA', 'BO', 'MECANICO'] as const).map((s) => (
+        <TouchableOpacity
+          key={s}
+          style={[styles.filterButton, filtroStatus === s && { backgroundColor: STATUS_CORES[s] }]}
+          onPress={() => setFiltroStatus(filtroStatus === s ? null : s)}
+        >
+          <Text style={styles.filterText}>{s}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
 
-        if (motosZona.length >= LIMITE_POR_ZONA) {
-          Alert.alert('Atenção', `A ${zona.label} está cheia! Limite: ${LIMITE_POR_ZONA} motos.`);
-        }
+    <TouchableOpacity
+      style={styles.verTodasButton}
+      onPress={() => setFiltroStatus(null)}
+    >
+      <Text style={styles.verTodasText}>Ver todas as motos no pátio</Text>
+    </TouchableOpacity>
+
+      {zonasMapeadas.map(({ zona, status }, i) => {
+        const indexOffset = zonasMapeadas.filter((z) => z.status === status).findIndex((z) => z.zona === zona) * 5;
+        const motosStatus = motosPorStatus[status].slice(indexOffset, indexOffset + 5);
+        const quadrantes = Array(5).fill(null).map((_, idx) => motosStatus[idx] || null);
 
         return (
-          <View
-            key={zona.key}
-            style={[styles.zone, { backgroundColor: zona.color, left: zona.area.left, top: zona.area.top }]}
-          >
-            <Text style={styles.zoneTitle}>{zona.label}</Text>
-
-            {motosZona.map((moto, index) => {
-              const posX = 10;
-              const posY = 30 + index * 60;
-
-              return (
-                <MotoCard
-                  key={moto.placa}
-                  moto={moto}
-                  style={{ position: 'absolute', left: posX, top: posY }}
-                  onPress={() => handlePress(moto)}
-                />
-              );
-            })}
+          <View key={zona} style={styles.zonaContainer}>
+            <Text style={styles.zonaLabel}>Zona {zona} - <Text style={styles.hint}>Toque em uma moto para detalhes</Text></Text>
+            <View style={styles.gridRow}>
+              {quadrantes.map((moto, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={[styles.gridBox, moto && { backgroundColor: STATUS_CORES[getStatus(moto)] }]}
+                  onPress={() => moto && setModalMoto(moto)}
+                  disabled={!moto}
+                >
+                  {moto ? <Icon name="motorbike" size={20} color="#fff" /> : null}
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         );
       })}
-    </ScrollView>
+
+      <Modal visible={!!modalMoto} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {modalMoto && (
+              <>
+                <Text style={styles.modalTitle}>Detalhes da Moto</Text>
+                <Text>Modelo: {modalMoto.modelo}</Text>
+                <Text>Placa: {modalMoto.placa}</Text>
+                <Text>Status: {getStatus(modalMoto)}</Text>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setModalMoto(null)}
+                >
+                  <Text style={styles.modalButtonText}>Fechar</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
-}
+};
+
+export default PatioScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 10,
+  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  title: { fontSize: 20, fontWeight: 'bold', color: '#00C247' },
+  filterRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  filterButton: {
+    padding: 8,
+    backgroundColor: '#eee',
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+    alignItems: 'center',
+  },
+  filterText: { fontWeight: 'bold' },
+  zonaContainer: { marginVertical: 10 },
+  zonaLabel: { fontSize: 16, fontWeight: '600', marginBottom: 6 },
+  hint: { color: '#666', fontSize: 14, fontWeight: '400' },
+  gridRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  gridBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 2,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
     backgroundColor: '#fff',
-    minHeight: '100%',
+    borderRadius: 12,
+    padding: 0,
+    width: '80%',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    textAlign: 'center',
-    color: '#00C247',
-  },
-  zone: {
-    position: 'relative',
-    width: 130,
-    height: 400,
-    borderRadius: 10,
-    padding: 5,
-    marginBottom: 20,
-  },
-  zoneTitle: {
+  modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
+  modalButton: {
+    marginTop: 20,
+    backgroundColor: '#00C247',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalButtonText: { color: '#fff', fontWeight: 'bold' },
+  verTodasButton: {
+  backgroundColor: '#00C247',
+  padding: 12,
+  borderRadius: 8,
+  alignItems: 'center',
+  marginBottom: 10,
+},
+verTodasText: {
+  color: '#fff',
+  fontWeight: 'bold',
+  fontSize: 16,
+},
+
 });
