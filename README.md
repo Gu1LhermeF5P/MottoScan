@@ -96,7 +96,7 @@ App.tsx
 - `typescript` – Tipagem estática no projeto
   
 ## 📱 Telas Desenvolvidas
-
+ Figma:https://www.figma.com/design/GJkkW0zBraktxOJiqxJmls/Untitled?node-id=8-327&t=zuoWcGn8k9u3uhCO-1
 - Tela de boas-vindas
 - Tela de cadastro de motos com formulário
 - Tela de listagem de motos
