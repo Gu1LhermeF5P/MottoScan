@@ -125,12 +125,3 @@ App.tsx
 - Icons (MaterialCommunityIcons)
 
 ---
-
-## 🚀 Versão futura (Sprint 2)
-
-- Integração com mapa real via `react-native-maps`
-- Simulação de sensores de movimentação
-- Notificações em tempo real
-- Controle por filiais múltiplas
-
----
