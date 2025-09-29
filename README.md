@@ -11,10 +11,6 @@ Aplicativo mobile em React Native com Expo para mapeamento inteligente de motos 
   **RM:** 554678 
 - **Nome:** Larissa de Freitas
   **RM:** 555136
-- **Nome:** João Victor Rebello de Santis  
-  **RM:** 555287
-
-
 ---
 
 ## 📲 Como rodar o projeto localmente
