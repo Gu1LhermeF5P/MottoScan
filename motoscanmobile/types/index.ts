@@ -1,27 +1,19 @@
-
+// ESTRUTURA NOVA E CORRETA
 export type Moto = {
+  id: number; // Adicionado pela API
   modelo: string;
   placa: string;
   zona: string;
-  positionInZona?: { x: number; y: number };
-  status: {
-    multa: boolean;
-    falhaMecanica: boolean;
-    roubada: boolean;
-  };
-  imagem:undefined;
+  
+  // Campos de status "achatados"
+  falhaMecanica: boolean;
+  multa: boolean;
+  roubada: boolean;
+  
+  // Campos de data adicionados pela API (opcionais na interface)
+  createdAt?: string; 
+  updatedAt?: string;
+  
+  // Campo de imagem adicionado localmente no app (opcional)
+  imagem?: any; 
 };
-
-export type RootStackParamList = {
-  Welcome: undefined;
-  Login: undefined;
-  Home: undefined;
-  Detalhes: undefined;
-  Cadastrar: undefined;
-  Motos: undefined;
-  Patio: { moto?: Moto };
-  RegisterMoto: undefined;
-  MotoList: undefined;
-  MotoDetail: { moto: Moto };
-};
-
