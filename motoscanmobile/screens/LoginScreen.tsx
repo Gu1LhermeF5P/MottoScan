@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-
-// Futuramente, vamos importar o contexto de autenticação aqui
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth(); // Obtenha a função de login do nosso contexto
 
-  const handleLogin = () => {
-    // Lógica de login que implementaremos a seguir
-    Alert.alert('Login', `Email: ${email}, Senha: ${senha}`);
+  const handleLogin = async () => {
+    if (!email.trim() || !senha.trim()) {
+      Alert.alert("Erro de Login", "Por favor, preencha os campos de email e senha.");
+      return;
+    }
+
+    setLoading(true);
+    const success = await login(email, senha);
+    setLoading(false);
+
+    if (!success) {
+      Alert.alert("Falha no Login", "O email ou a senha estão incorretos. Tente novamente.");
+    }
+    // Se o login for bem-sucedido, o App.tsx vai automaticamente
+    // mudar para as telas principais, então não precisamos navegar daqui.
   };
 
   return (
@@ -30,10 +43,18 @@ const LoginScreen = ({ navigation }: any) => {
         onChangeText={setSenha}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
+      <TouchableOpacity 
+        style={[styles.button, loading && styles.buttonDisabled]} 
+        onPress={handleLogin} 
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Entrar</Text>
+        )}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+      <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={loading}>
         <Text style={styles.linkText}>Não tem uma conta? Cadastre-se</Text>
       </TouchableOpacity>
     </View>
@@ -73,6 +94,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  buttonDisabled: {
+    backgroundColor: '#9adba9',
+  },
   buttonText: {
     color: '#fff',
     fontSize: 18,
@@ -84,4 +108,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
 export default LoginScreen;

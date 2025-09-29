@@ -3,20 +3,23 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { View, ActivityIndicator } from 'react-native'; 
 
-// Importe suas telas
+
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+
 import HomeScreen from './screens/HomeScreen';
 import RegisterMotoScreen from './screens/RegisterMotoScreen';
 import MotoListScreen from './screens/MotoListScreen';
 import PatioScreen from './screens/PatioScreen';
-import LoginScreen from './screens/LoginScreen'; // 👈 Importe
-import RegisterScreen from './screens/RegisterScreen'; // 👈 Importe
+import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
 
-// Vamos criar dois navegadores de pilha
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-// Pilha de navegação para quando o usuário está LOGADO
+
 function AppTabs() {
   return (
     <Tab.Navigator
@@ -41,7 +44,7 @@ function AppTabs() {
   );
 }
 
-// Pilha de navegação para quando o usuário NÃO está logado
+
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -51,15 +54,31 @@ function AuthStack() {
   );
 }
 
-// Componente principal que decide qual pilha mostrar
-export default function App() {
-  // Por enquanto, vamos deixar uma variável para simular o login
-  // Na próxima etapa, isso virá de um "Contexto"
-  const isAuthenticated = false; 
+
+function AppNavigator() {
+  const { token, isLoading } = useAuth();
+
+ 
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#00C247" />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? <AppTabs /> : <AuthStack />}
+      {token ? <AppTabs /> : <AuthStack />}
     </NavigationContainer>
+  );
+}
+
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
 }
