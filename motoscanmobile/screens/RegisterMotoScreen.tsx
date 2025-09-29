@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList
+  View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList,
+  Alert, ActivityIndicator // Importe Alert e ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// Importe o serviço da API e os tipos
+import { saveMotoToAPI } from '../services/api';
 import { RootStackParamList } from '../types/index';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const motoModelos = [
   { nome: 'MOTO SPORT', imagem: require('../assets/sport-2.webp') },
-  { nome: 'POP', imagem: require('../assets/pop.webp') },
+  { nome: 'POP 110i', imagem: require('../assets/pop.webp') },
   { nome: 'MOTO E', imagem: require('../assets/e-1.webp') },
 ];
 
@@ -17,23 +20,19 @@ const RegisterMotoScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [placa, setPlaca] = useState('');
-  const [modeloSelecionado, setModeloSelecionado] = useState(motoModelos[0]);
+  const [modeloSelecionado, setModeloSelecionado] = useState(motoModelos[1]); // Deixei a POP como padrão
   const [status, setStatus] = useState<'BO' | 'MECANICO' | 'PRONTA'>('PRONTA');
   const [erroPlaca, setErroPlaca] = useState('');
+  const [loading, setLoading] = useState(false); // Novo estado para o loading
 
   const validarPlaca = (texto: string) => {
     const placaFormatada = texto.toUpperCase();
     setPlaca(placaFormatada);
 
-    // Valida formatos: Antiga (ABC1234) ou Mercosul (ABC1D23)
     const placaAntiga = /^[A-Z]{3}[0-9]{4}$/;
     const placaMercosul = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
 
-    if (
-      placaFormatada.length === 7 &&
-      !placaAntiga.test(placaFormatada) &&
-      !placaMercosul.test(placaFormatada)
-    ) {
+    if (placaFormatada.length === 7 && !placaAntiga.test(placaFormatada) && !placaMercosul.test(placaFormatada)) {
       setErroPlaca('Placa inválida. Use o formato ABC1234 ou ABC1D23.');
     } else {
       setErroPlaca('');
@@ -41,37 +40,38 @@ const RegisterMotoScreen: React.FC = () => {
   };
 
   const salvarCadastro = async () => {
-    if (!placa.trim()) {
-      setErroPlaca('Por favor, insira a placa da moto.');
+    if (!placa.trim() || erroPlaca) {
+      Alert.alert('Erro', 'Por favor, corrija os erros no formulário.');
       return;
     }
 
-    if (erroPlaca) {
-      alert('Corrija o erro na placa antes de continuar.');
-      return;
-    }
+    setLoading(true);
 
-    const novaMoto = {
+    // O objeto enviado para a API deve ser "achatado"
+    const novaMotoPayload = {
       modelo: modeloSelecionado.nome,
       placa,
-      imagem: modeloSelecionado.imagem,
-      zona: 'A',
-      status: {
-        roubada: status === 'BO',
-        falhaMecanica: status === 'MECANICO',
-        multa: status === 'BO',
-      }
+      zona: 'A1', // Definindo uma zona padrão
+      roubada: status === 'BO',
+      falhaMecanica: status === 'MECANICO',
+      multa: status === 'BO', // Exemplo, ajuste conforme sua regra
     };
 
     try {
-      const data = await AsyncStorage.getItem('motos');
-      const listaAtual = data ? JSON.parse(data) : [];
-      const novaLista = [...listaAtual, novaMoto];
-      await AsyncStorage.setItem('motos', JSON.stringify(novaLista));
-      navigation.navigate('Motos');
-    } catch (error) {
-      console.error('Erro ao salvar moto:', error);
-      alert('Erro ao salvar a moto.');
+      const motoSalva = await saveMotoToAPI(novaMotoPayload);
+      if (motoSalva) {
+        Alert.alert('Sucesso!', 'Moto cadastrada com sucesso.');
+        navigation.navigate('Motos'); // Navega para a lista para ver a nova moto
+      } else {
+         // O erro de placa duplicada já é tratado no serviço da API
+         // Podemos adicionar um alerta genérico aqui
+         Alert.alert('Erro', 'Não foi possível cadastrar a moto.');
+      }
+    } catch (error: any) {
+        // Captura o erro específico de placa duplicada lançado pelo serviço
+        Alert.alert('Erro de Cadastro', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,17 +112,12 @@ const RegisterMotoScreen: React.FC = () => {
 
       <Text style={styles.label}>Status:</Text>
       <View style={styles.statusContainer}>
-        {['BO', 'MECANICO', 'PRONTA'].map((s) => (
+        {['PRONTA', 'MECANICO', 'BO'].map((s) => (
           <TouchableOpacity
             key={s}
             style={[
               styles.statusButton,
-              status === s &&
-              (s === 'BO'
-                ? styles.statusBO
-                : s === 'MECANICO'
-                ? styles.statusMECANICO
-                : styles.statusPRONTA)
+              status === s && (s === 'BO' ? styles.statusBO : s === 'MECANICO' ? styles.statusMECANICO : styles.statusPRONTA)
             ]}
             onPress={() => setStatus(s as typeof status)}
           >
@@ -131,8 +126,16 @@ const RegisterMotoScreen: React.FC = () => {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={salvarCadastro}>
-        <Text style={styles.saveButtonText}>Salvar</Text>
+      <TouchableOpacity 
+        style={[styles.saveButton, loading && styles.saveButtonDisabled]} 
+        onPress={salvarCadastro}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.saveButtonText}>Salvar</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -157,6 +160,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 6,
+    marginTop: 10,
   },
   input: {
     borderWidth: 1,
@@ -210,28 +214,19 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     alignItems: 'center',
   },
-  statusBO: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#ff0000',
-  },
-  statusMECANICO: {
-    backgroundColor: '#fff7cc',
-    borderColor: '#ffcc00',
-  },
-  statusPRONTA: {
-    backgroundColor: '#e6f8ed',
-    borderColor: '#00C247',
-  },
-  statusText: {
-    color: '#000',
-    fontWeight: '600',
-  },
+  statusPRONTA: { backgroundColor: '#e6f8ed', borderColor: '#00C247' },
+  statusMECANICO: { backgroundColor: '#fff7cc', borderColor: '#ffcc00' },
+  statusBO: { backgroundColor: '#ffdddd', borderColor: '#ff0000' },
+  statusText: { color: '#000', fontWeight: '600' },
   saveButton: {
     marginTop: 20,
     backgroundColor: '#00C247',
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  saveButtonDisabled: {
+    backgroundColor: '#9adba9',
   },
   saveButtonText: {
     color: '#fff',
