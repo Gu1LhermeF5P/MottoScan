@@ -1,19 +1,28 @@
-// ESTRUTURA NOVA E CORRETA
+// types/index.ts
+
 export type Moto = {
-  id: number; // Adicionado pela API
+  id: number;
   modelo: string;
   placa: string;
   zona: string;
-  
-  // Campos de status "achatados"
   falhaMecanica: boolean;
   multa: boolean;
   roubada: boolean;
-  
-  // Campos de data adicionados pela API (opcionais na interface)
-  createdAt?: string; 
+  createdAt?: string;
   updatedAt?: string;
-  
-  // Campo de imagem adicionado localmente no app (opcional)
-  imagem?: any; 
+  imagem?: any;
+};
+
+// COLE O TIPO DA NAVEGAÇÃO AQUI 👇
+export type RootStackParamList = {
+  Welcome: undefined;
+  Login: undefined;
+  Home: undefined;
+  Detalhes: undefined;
+  Cadastrar: undefined;
+  Motos: undefined;
+  Patio: { moto?: Moto };
+  RegisterMoto: undefined;
+  MotoList: undefined;
+  MotoDetail: { moto: Moto };
 };

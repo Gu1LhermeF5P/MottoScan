@@ -6,16 +6,9 @@ import HomeScreen from '../screens/HomeScreen';
 import MotoListScreen from '../screens/MotoListScreen';
 import MotoDetailScreen from '../screens/MotoDetailScreen';
 import RegisterMotoScreen from '../screens/RegisterMotoScreen';
+import { RootStackParamList } from '../types';
 
-export type RootStackParamList = {
-  Welcome: undefined;
-  Home: undefined;
-  Login: undefined;
-  MotoList: undefined;
-  MotoDetail: { motoId: string };
-  MotoHistory: { motoId: string };
-  RegisterMoto: undefined;
-};
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
