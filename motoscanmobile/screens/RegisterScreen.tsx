@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
+import { useAuth } from '../context/AuthContext'; 
 
 const RegisterScreen = ({ navigation }: any) => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth(); // Obtenha a função de registro do nosso contexto
+  const { register } = useAuth(); 
 
   const handleRegister = async () => {
     if (!nome.trim() || !email.trim() || !senha.trim()) {

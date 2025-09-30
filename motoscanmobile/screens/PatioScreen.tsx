@@ -1,211 +1,155 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+
+import { getMotosFromAPI } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 import { Moto } from '../types';
 
-const STATUS_CORES: Record<'BO' | 'MECANICO' | 'PRONTA', string> = {
-  BO: '#FF4C4C',
-  MECANICO: '#FFD700',
-  PRONTA: '#00C247',
-};
-
-const PatioScreen = () => {
-  const navigation = useNavigation();
+const PatioScreen: React.FC = () => {
+  const { colors } = useTheme();
   const [motos, setMotos] = useState<Moto[]>([]);
-  const [filtroStatus, setFiltroStatus] = useState<'BO' | 'MECANICO' | 'PRONTA' | null>(null);
-  const [modalMoto, setModalMoto] = useState<Moto | null>(null);
-
-  const carregarMotos = async () => {
-    const data = await AsyncStorage.getItem('motos');
-    if (data) {
-      const lista = JSON.parse(data);
-      setMotos(lista);
-    }
-  };
-
+  const [loading, setLoading] = useState(true);
+  const isFocused = useIsFocused();
+  
+  // Busca os dados da API sempre que a tela entra em foco
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', carregarMotos);
-    return unsubscribe;
-  }, [navigation]);
+    const fetchMotos = async () => {
+      try {
+        setLoading(true);
+        const dataFromApi = await getMotosFromAPI();
+        setMotos(dataFromApi);
+      } catch (error) {
+        Alert.alert("Erro", "Não foi possível carregar os dados do pátio.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (isFocused) {
+      fetchMotos();
+    }
+  }, [isFocused]);
 
-  const motosFiltradas = filtroStatus
-    ? motos.filter((m) => {
-        if (filtroStatus === 'BO') return m.status.roubada;
-        if (filtroStatus === 'MECANICO') return m.status.falhaMecanica;
-        if (filtroStatus === 'PRONTA') return !m.status.roubada && !m.status.falhaMecanica;
-        return true;
-      })
-    : motos;
+  // Filtra as motos por status. useMemo evita que o filtro seja refeito a cada renderização.
+  const motosPorStatus = useMemo(() => {
+    const prontas = motos.filter(m => !m.falhaMecanica && !m.roubada);
+    const emManutencao = motos.filter(m => m.falhaMecanica);
+    const comBO = motos.filter(m => m.roubada);
+    return { prontas, emManutencao, comBO };
+  }, [motos]);
 
-  const getStatus = (m: Moto): 'BO' | 'MECANICO' | 'PRONTA' => {
-    if (m.status.roubada) return 'BO';
-    if (m.status.falhaMecanica) return 'MECANICO';
-    return 'PRONTA';
-  };
+  const styles = getStyles(colors);
 
-  const motosPorStatus: Record<'PRONTA' | 'BO' | 'MECANICO', Moto[]> = {
-    PRONTA: [],
-    BO: [],
-    MECANICO: [],
-  };
-
-  motosFiltradas.forEach((moto) => {
-    motosPorStatus[getStatus(moto)].push(moto);
-  });
-
-  const zonasMapeadas: { zona: string; status: 'BO' | 'MECANICO' | 'PRONTA' }[] = [
-    { zona: 'A', status: 'PRONTA' },
-    { zona: 'B', status: 'PRONTA' },
-    { zona: 'C', status: 'BO' },
-    { zona: 'D', status: 'BO' },
-    { zona: 'E', status: 'MECANICO' },
-    { zona: 'F', status: 'MECANICO' },
-  ];
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loader]}>
+        <ActivityIndicator size="large" color={colors.tint} />
+        <Text style={styles.header}>Carregando Pátio...</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.titleRow}>
-        <Icon name="map" size={24} color="#00C247" style={{ marginRight: 8 }} />
-        <Text style={styles.title}>Pátio - Filial Zona Leste</Text>
-      </View>
-
-      <View style={styles.filterRow}>
-        {(['PRONTA', 'BO', 'MECANICO'] as const).map((s) => (
-          <TouchableOpacity
-            key={s}
-            style={[styles.filterButton, filtroStatus === s && { backgroundColor: STATUS_CORES[s] }]}
-            onPress={() => setFiltroStatus(filtroStatus === s ? null : s)}
-          >
-            <Text style={styles.filterText}>{s}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <TouchableOpacity
-        style={styles.verTodasButton}
-        onPress={() => setFiltroStatus(null)}
-      >
-        <Text style={styles.verTodasText}>Ver todas as motos no pátio</Text>
-      </TouchableOpacity>
-
-      <ScrollView style={{ flex: 1 }}>
-        {zonasMapeadas.map(({ zona, status }) => {
-          const indexOffset = zonasMapeadas.filter((z) => z.status === status).findIndex((z) => z.zona === zona) * 5;
-          const motosStatus = motosPorStatus[status].slice(indexOffset, indexOffset + 5);
-          const quadrantes = Array(5).fill(null).map((_, idx) => motosStatus[idx] || null);
-
-          return (
-            <View key={zona} style={styles.zonaContainer}>
-              <Text style={styles.zonaLabel}>
-                Zona {zona} - <Text style={styles.hint}>Toque em uma moto para detalhes</Text>
-              </Text>
-              <View style={styles.gridRow}>
-                {quadrantes.map((moto, idx) => (
-                  <TouchableOpacity
-                    key={idx}
-                    style={[styles.gridBox, moto && { backgroundColor: STATUS_CORES[getStatus(moto)] }]}
-                    onPress={() => moto && setModalMoto(moto)}
-                    disabled={!moto}
-                  >
-                    {moto ? <Icon name="motorbike" size={20} color="#fff" /> : null}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          );
-        })}
-      </ScrollView>
-
-      <Modal visible={!!modalMoto} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {modalMoto && (
-              <>
-                <Text style={styles.modalTitle}>Detalhes da Moto</Text>
-                <Text>Modelo: {modalMoto.modelo}</Text>
-                <Text>Placa: {modalMoto.placa}</Text>
-                <Text>Status: {getStatus(modalMoto)}</Text>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => setModalMoto(null)}
-                >
-                  <Text style={styles.modalButtonText}>Fechar</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
+    <ScrollView style={styles.container}>
+      <Text style={styles.header}>Visão Geral do Pátio</Text>
+      
+      {/* Zona de Motos Disponíveis */}
+      <View style={[styles.zone, styles.zoneDisponivel]}>
+        <Text style={styles.zoneTitle}>Disponíveis ({motosPorStatus.prontas.length})</Text>
+        <View style={styles.motoContainer}>
+          {motosPorStatus.prontas.map(moto => (
+            <View key={moto.placa} style={[styles.motoDot, styles.dotDisponivel]} />
+          ))}
         </View>
-      </Modal>
-    </View>
+      </View>
+
+      {/* Zona de Motos em Manutenção */}
+      <View style={[styles.zone, styles.zoneManutencao]}>
+        <Text style={styles.zoneTitle}>Em Manutenção ({motosPorStatus.emManutencao.length})</Text>
+        <View style={styles.motoContainer}>
+          {motosPorStatus.emManutencao.map(moto => (
+            <View key={moto.placa} style={[styles.motoDot, styles.dotManutencao]} />
+          ))}
+        </View>
+      </View>
+
+      {/* Zona de Motos com B.O. */}
+      <View style={[styles.zone, styles.zoneBO]}>
+        <Text style={styles.zoneTitle}>Com B.O. ({motosPorStatus.comBO.length})</Text>
+        <View style={styles.motoContainer}>
+          {motosPorStatus.comBO.map(moto => (
+            <View key={moto.placa} style={[styles.motoDot, styles.dotBO]} />
+          ))}
+        </View>
+      </View>
+
+    </ScrollView>
   );
 };
 
-export default PatioScreen;
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#00C247' },
-  filterRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  filterButton: {
-    padding: 8,
-    backgroundColor: '#eee',
-    borderRadius: 8,
+const getStyles = (colors: any) => StyleSheet.create({
+  container: {
     flex: 1,
-    marginHorizontal: 4,
-    alignItems: 'center',
+    padding: 16,
+    backgroundColor: colors.background,
   },
-  filterText: { fontWeight: 'bold' },
-  zonaContainer: { marginVertical: 10 },
-  zonaLabel: { fontSize: 16, fontWeight: '600', marginBottom: 6 },
-  hint: { color: '#666', fontSize: 14, fontWeight: '400' },
-  gridRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  gridBox: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 2,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+  loader: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
-    backgroundColor: '#fff',
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  zone: {
+    marginBottom: 20,
     borderRadius: 12,
-    padding: 20,
-    width: '80%',
+    padding: 15,
   },
-  modalTitle: {
+  zoneDisponivel: {
+    backgroundColor: 'rgba(0, 194, 71, 0.1)',
+    borderColor: 'rgba(0, 194, 71, 0.4)',
+    borderWidth: 1,
+  },
+  zoneManutencao: {
+    backgroundColor: 'rgba(255, 165, 0, 0.1)',
+    borderColor: 'rgba(255, 165, 0, 0.4)',
+    borderWidth: 1,
+  },
+  zoneBO: {
+    backgroundColor: 'rgba(255, 77, 77, 0.1)',
+    borderColor: 'rgba(255, 77, 77, 0.4)',
+    borderWidth: 1,
+  },
+  zoneTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: colors.text,
     marginBottom: 10,
   },
-  modalButton: {
-    marginTop: 20,
-    backgroundColor: '#00C247',
-    padding: 10,
-    borderRadius: 8,
-    alignItems: 'center',
+  motoContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Permite que as bolinhas quebrem a linha
   },
-  modalButtonText: { color: '#fff', fontWeight: 'bold' },
-  verTodasButton: {
-    backgroundColor: '#00C247',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 10,
+  motoDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10, // Metade da largura/altura para ser um círculo
+    margin: 4,
   },
-  verTodasText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
+  dotDisponivel: {
+    backgroundColor: '#00C247',
+  },
+  dotManutencao: {
+    backgroundColor: '#FFA500',
+  },
+  dotBO: {
+    backgroundColor: '#FF4D4D',
   },
 });
+
+export default PatioScreen;

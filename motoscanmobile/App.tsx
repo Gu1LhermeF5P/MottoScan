@@ -1,12 +1,14 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, TouchableOpacity } from 'react-native'; 
 
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
+// Importe todas as suas telas
 import HomeScreen from './screens/HomeScreen';
 import RegisterMotoScreen from './screens/RegisterMotoScreen';
 import MotoListScreen from './screens/MotoListScreen';
@@ -19,9 +21,28 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 function AppTabs() {
+  const { colors } = useTheme();
+  const { logout } = useAuth(); 
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        tabBarStyle: { 
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
+        },
+        tabBarActiveTintColor: colors.tint,
+        tabBarInactiveTintColor: colors.tabIconDefault,
+        headerStyle: { backgroundColor: colors.background },
+        headerTitleStyle: { color: colors.text },
+
+        
+        headerRight: () => (
+          <TouchableOpacity onPress={logout} style={{ marginRight: 15 }}>
+            <Ionicons name="log-out-outline" size={26} color={colors.text} />
+          </TouchableOpacity>
+        ),
+
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'alert';
           if (route.name === 'Home') iconName = 'home-outline';
@@ -30,8 +51,6 @@ function AppTabs() {
           else if (route.name === 'Pátio') iconName = 'map-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#00C247',
-        tabBarInactiveTintColor: 'gray',
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -42,6 +61,7 @@ function AppTabs() {
   );
 }
 
+// O restante do arquivo permanece o mesmo
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -52,6 +72,8 @@ function AuthStack() {
 }
 
 function AppStack() {
+  const { colors } = useTheme();
+
   return (
     <Stack.Navigator>
       <Stack.Screen 
@@ -59,34 +81,47 @@ function AppStack() {
         component={AppTabs} 
         options={{ headerShown: false }} 
       />
-      
       <Stack.Screen 
         name="EditMoto" 
         component={EditMotoScreen} 
         options={{ 
           headerShown: true, 
-          title: 'Editar Moto' 
+          title: 'Editar Moto',
+          headerStyle: { backgroundColor: colors.background },
+          headerTitleStyle: { color: colors.text },
+          headerTintColor: colors.tint,
         }} 
       />
     </Stack.Navigator>
   );
 }
 
-
 function AppNavigator() {
   const { token, isLoading } = useAuth();
+  const { isDarkMode, colors } = useTheme();
+
+  const navigationTheme = {
+    ...(isDarkMode ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDarkMode ? DarkTheme.colors : DefaultTheme.colors),
+      background: colors.background,
+      text: colors.text,
+      primary: colors.tint,
+      card: colors.card,
+      border: colors.border,
+    },
+  };
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#00C247" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
-      
+    <NavigationContainer theme={navigationTheme}>
       {token ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
@@ -94,8 +129,10 @@ function AppNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppNavigator />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppNavigator />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

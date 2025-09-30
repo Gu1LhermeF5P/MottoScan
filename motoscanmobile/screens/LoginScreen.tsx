@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext'; 
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth(); // Obtenha a função de login do nosso contexto
+  const { login } = useAuth();
+  const { colors } = useTheme(); 
 
   const handleLogin = async () => {
     if (!email.trim() || !senha.trim()) {
@@ -21,9 +23,10 @@ const LoginScreen = ({ navigation }: any) => {
     if (!success) {
       Alert.alert("Falha no Login", "O email ou a senha estão incorretos. Tente novamente.");
     }
-    // Se o login for bem-sucedido, o App.tsx vai automaticamente
-    // mudar para as telas principais, então não precisamos navegar daqui.
   };
+
+  
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -31,6 +34,7 @@ const LoginScreen = ({ navigation }: any) => {
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor={colors.border} 
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -39,6 +43,7 @@ const LoginScreen = ({ navigation }: any) => {
       <TextInput
         style={styles.input}
         placeholder="Senha"
+        placeholderTextColor={colors.border}
         value={senha}
         onChangeText={setSenha}
         secureTextEntry
@@ -49,7 +54,7 @@ const LoginScreen = ({ navigation }: any) => {
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.background} />
         ) : (
           <Text style={styles.buttonText}>Entrar</Text>
         )}
@@ -61,49 +66,51 @@ const LoginScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
+
+const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background, 
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#00C247',
+    color: colors.tint, 
     marginBottom: 30,
   },
   input: {
     width: '100%',
     height: 50,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border, 
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 15,
     fontSize: 16,
+    color: colors.text, 
   },
   button: {
     width: '100%',
     height: 50,
-    backgroundColor: '#00C247',
+    backgroundColor: colors.tint, 
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
   },
   buttonDisabled: {
-    backgroundColor: '#9adba9',
+    opacity: 0.7,
   },
   buttonText: {
-    color: '#fff',
+    color: colors.background, 
     fontSize: 18,
     fontWeight: 'bold',
   },
   linkText: {
-    color: '#00C247',
+    color: colors.tint, 
     marginTop: 20,
     fontSize: 16,
   },
