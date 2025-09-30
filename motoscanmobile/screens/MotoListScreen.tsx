@@ -7,7 +7,7 @@ import {
     TouchableOpacity, 
     StyleSheet, 
     Alert,
-    ActivityIndicator // Importe o ActivityIndicator
+    ActivityIndicator
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,16 +29,15 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
 const MotoListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [motos, setMotos] = useState<Moto[]>([]);
-  const [loading, setLoading] = useState(true); // Estado para o indicador de carregamento
+  const [loading, setLoading] = useState(true);
   const isFocused = useIsFocused();
 
   useEffect(() => {
     const fetchMotos = async () => {
       try {
-        setLoading(true); // Inicia o carregamento
+        setLoading(true);
         const dataFromApi = await getMotosFromAPI();
         
-        // Mapeia os dados para incluir a imagem local correspondente
         const mappedData = dataFromApi.map((moto) => ({
           ...moto,
           imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
@@ -49,7 +48,7 @@ const MotoListScreen: React.FC = () => {
         console.error("Erro ao buscar motos:", error);
         Alert.alert("Erro", "Não foi possível carregar a lista de motos.");
       } finally {
-        setLoading(false); // Finaliza o carregamento
+        setLoading(false);
       }
     };
     
@@ -70,7 +69,6 @@ const MotoListScreen: React.FC = () => {
           onPress: async () => {
             const success = await deleteMotoFromAPI(placa);
             if (success) {
-              // Remove a moto da lista local para atualizar a UI instantaneamente
               setMotos(prevMotos => prevMotos.filter(moto => moto.placa !== placa));
             } else {
               Alert.alert('Erro', 'Não foi possível excluir a moto.');
@@ -81,27 +79,34 @@ const MotoListScreen: React.FC = () => {
     );
   };
   
-  // A lógica de cor agora usa os campos direto do objeto, e não de 'status'
   const getStatusColor = (moto: Moto) => {
-    if (moto.roubada) return '#FF4D4D'; // Vermelho para roubada/B.O.
-    if (moto.falhaMecanica) return '#FFA500'; // Laranja para falha mecânica
-    return '#00C247'; // Verde para pronta
+    if (moto.roubada) return '#FF4D4D';
+    if (moto.falhaMecanica) return '#FFA500';
+    return '#00C247';
   };
 
   const renderItem = ({ item }: { item: Moto }) => (
-    <TouchableOpacity 
-        style={[styles.card, { borderColor: getStatusColor(item) }]}
-        // onPress={() => navigation.navigate('MotoDetail', { moto: item })} // Descomente para navegar para detalhes
-    >
+    <View style={[styles.card, { borderColor: getStatusColor(item) }]}>
       <Image source={item.imagem} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.model}>{item.modelo}</Text>
         <Text>Placa: {item.placa}</Text>
       </View>
-      <TouchableOpacity onPress={() => deleteMoto(item.placa)} style={styles.deleteButton}>
-        <Text style={styles.deleteText}>Excluir</Text>
-      </TouchableOpacity>
-    </TouchableOpacity>
+      
+      {/* Container para os botões de ação */}
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity 
+          style={styles.editButton} 
+          // Navega para a tela 'EditMoto' passando os dados do item
+          onPress={() => navigation.navigate('EditMoto', { moto: item })}
+        >
+          <Text style={styles.editText}>Editar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => deleteMoto(item.placa)} style={styles.deleteButton}>
+          <Text style={styles.deleteText}>Excluir</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 
   if (loading) {
@@ -121,7 +126,7 @@ const MotoListScreen: React.FC = () => {
       ) : (
         <FlatList
           data={motos}
-          keyExtractor={(item) => item.placa} // Use a placa que é única
+          keyExtractor={(item) => item.placa}
           renderItem={renderItem}
         />
       )}
@@ -151,6 +156,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     alignItems: 'center',
     backgroundColor: '#f9f9f9',
+    justifyContent: 'space-between', // Adicionado para alinhar os botões
   },
   image: {
     width: 70,
@@ -166,15 +172,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  deleteButton: {
-    padding: 8,
-    marginLeft: 10,
-  },
-  deleteText: {
-    fontSize: 14,
-    color: '#FF4D4D',
-    fontWeight: 'bold'
-  },
   emptyText: {
     fontSize: 16,
     color: '#888',
@@ -185,5 +182,34 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
-  }
+  },
+  // --- ESTILOS ADICIONADOS ---
+  actionsContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    alignItems: 'center'
+  },
+  editButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  editText: {
+    color: '#333',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  deleteButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ffdddd',
+    borderRadius: 6,
+  },
+  deleteText: {
+    color: '#c53030',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
 });

@@ -25,4 +25,5 @@ export type RootStackParamList = {
   RegisterMoto: undefined;
   MotoList: undefined;
   MotoDetail: { moto: Moto };
+  EditMoto: { moto: Moto };
 };
