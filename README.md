@@ -119,3 +119,10 @@ O projeto é dividido em duas partes: **backend** e **frontend**. Ambas precisam
     -   Tela de Pátio Inteligente com zonas de status
 ## Link API 
 link[[api_java](https://github.com/Gu1LhermeF5P/api_java)]
+## 🎥 Vídeo de Demonstração
+
+Assista a uma demonstração completa da aplicação, apresentando as principais funcionalidades, fluxos de usuário e a tecnologia por trás do projeto.
+
+**[[➡️ Link para o Vídeo de Demonstração]([https://youtu.be/EfWiuC3ZdVM](https://youtu.be/5iowC64x4SE)) (Clique Aqui)]**
+
+---
