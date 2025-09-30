@@ -98,3 +98,22 @@ O projeto é dividido em duas partes: **backend** e **frontend**. Ambas precisam
 ---
 
 ## 📁 Estrutura de Pastas (Frontend)
+/
+├── assets/         # Imagens e recursos estáticos
+├── constants/      # Constantes globais (ex: Cores do tema)
+├── context/        # Contextos da aplicação (AuthContext, ThemeContext)
+├── screens/        # Telas principais da aplicação
+├── services/       # Lógica de comunicação com a API
+└── types/          # Definições de tipos TypeScript
+---
+
+## 📱 Telas Desenvolvidas
+-   **Fluxo de Autenticação:**
+    -   Tela de Login
+    -   Tela de Cadastro de Usuário
+-   **Fluxo Principal:**
+    -   Tela Home (com botões de navegação e toggle de tema)
+    -   Tela de Listagem de Motos (com opções de editar e excluir)
+    -   Tela de Cadastro de Motos
+    -   Tela de Edição de Motos
+    -   Tela de Pátio Inteligente com zonas de status
