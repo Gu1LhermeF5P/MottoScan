@@ -6,14 +6,10 @@ const API_URL = 'http://192.168.0.119:8080';
 
 const getAuthHeaders = async () => {
   const token = await AsyncStorage.getItem('userToken');
-  
-  
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-
   if (token) {
-    
     headers['Authorization'] = `Bearer ${token}`;
   }
   return headers;
@@ -32,7 +28,6 @@ export async function getMotosFromAPI(): Promise<Moto[]> {
   }
 }
 
-
 export async function saveMotoToAPI(newMoto: Omit<Moto, 'id'>): Promise<Moto | null> {
   try {
     const headers = await getAuthHeaders();
@@ -49,9 +44,6 @@ export async function saveMotoToAPI(newMoto: Omit<Moto, 'id'>): Promise<Moto | n
   }
 }
 
-/**
- * Deleta uma moto da API usando a placa.
- */
 export async function deleteMotoFromAPI(placa: string): Promise<boolean> {
   try {
     const headers = await getAuthHeaders();
@@ -63,5 +55,26 @@ export async function deleteMotoFromAPI(placa: string): Promise<boolean> {
   } catch (error) {
     console.error('Erro em deleteMotoFromAPI:', error);
     return false;
+  }
+}
+
+
+export async function updateMotoAPI(placa: string, motoData: Partial<Moto>): Promise<Moto | null> {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/motos/${placa}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(motoData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao atualizar a moto.');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro em updateMotoAPI:', error);
+    return null;
   }
 }
