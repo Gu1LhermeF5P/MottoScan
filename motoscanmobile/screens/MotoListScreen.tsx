@@ -12,9 +12,9 @@ import {
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-// Importe suas funções da API e os tipos
 import { getMotosFromAPI, deleteMotoFromAPI } from '../services/api';
 import type { RootStackParamList, Moto } from '../types';
+import { useTheme } from '../context/ThemeContext'; // Importe o hook do tema
 
 const imageMap: Record<string, any> = {
   'MOTO SPORT': require('../assets/sport-2.webp'),
@@ -28,6 +28,9 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
 
 const MotoListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { colors } = useTheme(); // Obtenha as cores do tema
+  const styles = getStyles(colors); // Crie os estilos dinâmicos
+
   const [motos, setMotos] = useState<Moto[]>([]);
   const [loading, setLoading] = useState(true);
   const isFocused = useIsFocused();
@@ -80,9 +83,9 @@ const MotoListScreen: React.FC = () => {
   };
   
   const getStatusColor = (moto: Moto) => {
-    if (moto.roubada) return '#FF4D4D';
-    if (moto.falhaMecanica) return '#FFA500';
-    return '#00C247';
+    if (moto.roubada) return '#dc3545'; // Vermelho
+    if (moto.falhaMecanica) return '#ffc107'; // Amarelo
+    return '#28a745'; // Verde
   };
 
   const renderItem = ({ item }: { item: Moto }) => (
@@ -90,14 +93,12 @@ const MotoListScreen: React.FC = () => {
       <Image source={item.imagem} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.model}>{item.modelo}</Text>
-        <Text>Placa: {item.placa}</Text>
+        <Text style={styles.placaText}>Placa: {item.placa}</Text>
       </View>
       
-      {/* Container para os botões de ação */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity 
           style={styles.editButton} 
-          // Navega para a tela 'EditMoto' passando os dados do item
           onPress={() => navigation.navigate('EditMoto', { moto: item })}
         >
           <Text style={styles.editText}>Editar</Text>
@@ -112,8 +113,8 @@ const MotoListScreen: React.FC = () => {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#00C247" />
-        <Text>Carregando motos...</Text>
+        <ActivityIndicator size="large" color={colors.tint} />
+        <Text style={{ color: colors.text, marginTop: 10 }}>Carregando motos...</Text>
       </View>
     );
   }
@@ -134,19 +135,17 @@ const MotoListScreen: React.FC = () => {
   );
 };
 
-export default MotoListScreen;
-
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff'
+    backgroundColor: colors.background,
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#00C247',
-    marginBottom: 16
+    color: colors.text,
+    marginBottom: 16,
   },
   card: {
     flexDirection: 'row',
@@ -155,61 +154,66 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 12,
     alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    justifyContent: 'space-between', // Adicionado para alinhar os botões
+    backgroundColor: colors.card,
+    justifyContent: 'space-between',
   },
   image: {
     width: 70,
     height: 70,
     resizeMode: 'contain',
-    marginRight: 16
+    marginRight: 16,
   },
   info: {
-    flex: 1
+    flex: 1,
   },
   model: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
+  },
+  placaText: {
+    color: colors.text,
   },
   emptyText: {
     fontSize: 16,
-    color: '#888',
+    color: colors.border,
     textAlign: 'center',
-    marginTop: 40
+    marginTop: 40,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: colors.background,
   },
-  // --- ESTILOS ADICIONADOS ---
   actionsContainer: {
     flexDirection: 'column',
     justifyContent: 'space-around',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   editButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
     borderRadius: 6,
     marginBottom: 8,
   },
   editText: {
-    color: '#333',
+    color: colors.text,
     fontWeight: 'bold',
     fontSize: 14,
   },
   deleteButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#ffdddd',
+    backgroundColor: '#dc354520', // Fundo vermelho claro
     borderRadius: 6,
   },
   deleteText: {
-    color: '#c53030',
+    color: '#c82333', // Vermelho escuro
     fontWeight: 'bold',
     fontSize: 14,
   },
 });
+
+export default MotoListScreen;
