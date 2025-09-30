@@ -3,11 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { View, ActivityIndicator } from 'react-native'; 
-
+import { View, ActivityIndicator } from 'react-native';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
-
 
 import HomeScreen from './screens/HomeScreen';
 import RegisterMotoScreen from './screens/RegisterMotoScreen';
@@ -15,10 +13,10 @@ import MotoListScreen from './screens/MotoListScreen';
 import PatioScreen from './screens/PatioScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import EditMotoScreen from './screens/EditMotoScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
-
 
 function AppTabs() {
   return (
@@ -44,7 +42,6 @@ function AppTabs() {
   );
 }
 
-
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -54,11 +51,31 @@ function AuthStack() {
   );
 }
 
+function AppStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="AppTabs" 
+        component={AppTabs} 
+        options={{ headerShown: false }} 
+      />
+      
+      <Stack.Screen 
+        name="EditMoto" 
+        component={EditMotoScreen} 
+        options={{ 
+          headerShown: true, 
+          title: 'Editar Moto' 
+        }} 
+      />
+    </Stack.Navigator>
+  );
+}
+
 
 function AppNavigator() {
   const { token, isLoading } = useAuth();
 
- 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -69,11 +86,11 @@ function AppNavigator() {
 
   return (
     <NavigationContainer>
-      {token ? <AppTabs /> : <AuthStack />}
+      
+      {token ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
 }
-
 
 export default function App() {
   return (
