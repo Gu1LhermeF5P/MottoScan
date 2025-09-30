@@ -1,101 +1,100 @@
+# MotoScan 🏍️💨
 
-# MotoScan 🚨📍
+Aplicativo full-stack para mapeamento e gerenciamento inteligente de motos em pátios. O projeto consiste em:
 
-Aplicativo mobile em React Native com Expo para mapeamento inteligente de motos em pátios de diferentes filiais. Permite o cadastro, visualização, filtro e monitoramento das motos conforme seu status (pronta, com falha mecânica ou com BO de roubo).
+* **Frontend Mobile:** Desenvolvido em React Native com Expo, focado em uma interface de usuário fluida e reativa.
+* **Backend API:** Uma API RESTful robusta e segura construída com Java e Spring Boot.
+
+O sistema permite o cadastro, visualização, edição, exclusão e monitoramento das motos conforme seu status (pronta, com falha mecânica ou com BO de roubo), com acesso controlado por um sistema de autenticação completo.
 
 ---
 
 ## 👥 Integrantes
 
-- **Nome:** Guilherme Francisco   
-  **RM:** 554678 
-- **Nome:** Larissa de Freitas
-  **RM:** 555136
----
-
-## 📲 Como rodar o projeto localmente
-
-### Pré-requisitos:
-
-- Node.js e npm instalados
-- Expo CLI instalado globalmente:
-  ```bash
-  npm install -g expo-cli
-  ```
-- Emulador Android/iOS ou aplicativo Expo Go no celular
-
-### Passos:
-
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/SeuUsuario/MotoScan.git
-   cd MotoScan
-   ```
-
-2. Instale as dependências:
-   ```bash
-   npm install
-   ```
-
-3. Inicie o projeto com Expo:
-   ```bash
-   npx expo start
-   ```
-
-4. Escaneie o QR Code no terminal com o aplicativo **Expo Go** no celular ou execute em um emulador.
+-   **Nome:** Guilherme Francisco
+    -   **RM:** 554678
+-   **Nome:** Larissa de Freitas
+    -   **RM:** 555136
 
 ---
 
+## ✨ Funcionalidades Principais
 
-## 🧠 Solução Implementada
-
-O MotoScan simula a operação de uma empresa que aluga motos e precisa monitorar seu status em tempo real. O sistema permite:
-
-- Cadastro de motos com modelo, placa e status (roubada, falha mecânica, ou pronta)
-- Visualização em lista e em formato de mapa dividido por zonas
-- Filtros por tipo de problema
-- Detalhamento individual de cada moto com modal interativo
-- Uso de armazenamento local para simulação offline
-
-O app foi desenvolvido com foco em usabilidade, fluidez e facilidade de testes, visando um MVP funcional para inspeção e logística em pátios de motos.
+-   **Autenticação Segura:** Sistema completo de registro e login de usuários com tokens JWT.
+-   **CRUD de Motos:** Funcionalidades para Criar, Ler, Editar e Deletar motos da frota, com acesso protegido por autenticação.
+-   **Pátio Visual Dinâmico:** Uma tela que exibe um resumo visual da frota em tempo real, separada por status (Disponível, Manutenção, Com B.O.).
+-   **Tema Dinâmico:** Interface totalmente adaptável aos modos Claro e Escuro do dispositivo, com um botão para troca manual.
+-   **Navegação Intuitiva:** Fluxo de telas organizado com React Navigation.
 
 ---
 
-## 📁 Estrutura de pastas
+## 🛠️ Tecnologias Utilizadas
 
-```
-/screens
-  ├── WelcomeScreen.tsx
-  ├── CadastroScreen.tsx
-  ├── MotoListScreen.tsx
-  ├── PatioScreen.tsx
-  └── DetalhesScreen.tsx
+#### **Backend (API)**
+-   Java 17
+-   Spring Boot
+-   Spring Security (para autenticação com JWT)
+-   Spring Data JPA
+-   Flyway (para versionamento do banco)
+-   H2 Database (banco de dados em memória/arquivo)
+-   Maven
 
-/types
-  └── Moto.ts
-
-/assets
-  └── motos (imagens dos modelos)
-
-App.tsx
-```
+#### **Frontend (Mobile)**
+-   React Native
+-   Expo
+-   TypeScript
+-   React Navigation
+-   Context API (para gerenciamento de estado de Autenticação e Tema)
+-   AsyncStorage (para persistir o token e a preferência de tema)
 
 ---
-## 📦 Bibliotecas Instaladas
 
-- `react-native-vector-icons` – Ícones personalizados
-- `@react-native-async-storage/async-storage` – Armazenamento local de dados
-- `@react-navigation/native` – Navegação entre telas
-- `@react-navigation/native-stack` – Pilha de navegação
-- `react-native-screens`, `react-native-safe-area-context`, `react-native-gesture-handler`, `react-native-reanimated` – Dependências da navegação
-- `expo` – Plataforma de desenvolvimento
-- `typescript` – Tipagem estática no projeto
-  
-## 📱 Telas Desenvolvidas
- Figma:https://www.figma.com/design/GJkkW0zBraktxOJiqxJmls/Untitled?node-id=8-327&t=zuoWcGn8k9u3uhCO-1
-- Tela de boas-vindas
-- Tela de cadastro de motos com formulário
-- Tela de listagem de motos
-- Tela de detalhes da moto
-- Tela de mapa inteligente com zonas e filtros
-- Modal com visualização rápida das motos por status
+## 📲 Como Rodar o Projeto Localmente
+
+O projeto é dividido em duas partes: **backend** e **frontend**. Ambas precisam estar rodando simultaneamente.
+
+### **1. Backend (API Java)**
+
+**Pré-requisitos:**
+-   Java (JDK 17 ou superior) instalado
+-   Maven instalado
+
+**Passos:**
+1.  Navegue até a pasta da API:
+    ```bash
+    cd pasta-da-sua-api # Ex: cd api
+    ```
+2.  Execute a aplicação com o Maven Wrapper:
+    ```bash
+    ./mvnw spring-boot:run
+    ```
+    A API estará rodando em `http://localhost:8080`.
+
+### **2. Frontend (App Mobile)**
+
+**Pré-requisitos:**
+-   Node.js e npm instalados
+-   Emulador Android/iOS ou o aplicativo Expo Go no celular
+
+**Passos:**
+1.  Navegue até a pasta do aplicativo mobile:
+    ```bash
+    cd pasta-do-seu-app-mobile # Ex: cd motoscanmobile
+    ```
+2.  Instale as dependências:
+    ```bash
+    npm install
+    ```
+3.  **⚠️ IMPORTANTE:** Configure o IP da API.
+    * Abra o arquivo `services/api.ts`.
+    * Altere a variável `API_URL` para o endereço de IP da sua máquina na rede local (ex: `http://192.168.1.10:8080`).
+
+4.  Inicie o projeto com Expo:
+    ```bash
+    npx expo start
+    ```
+5.  Escaneie o QR Code no terminal com o aplicativo **Expo Go** no celular ou execute em um emulador.
+
+---
+
+## 📁 Estrutura de Pastas (Frontend)
