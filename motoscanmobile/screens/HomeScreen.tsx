@@ -6,15 +6,20 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { RootStackParamList } from '../types/index';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import i18n from '../i18n.config'; // 1. Importe o i18n
+import type { ColorPalette } from '../constants/Colors'; // Importe o tipo de Cor
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { colors, isDarkMode, toggleTheme } = useTheme();
+  const { logout } = useAuth(); // A lógica de logout continua no App.tsx, mas a de tema está aqui
   
   const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
+      {/* Botão para trocar o tema */}
       <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
         <Ionicons 
           name={isDarkMode ? 'sunny-outline' : 'moon-outline'} 
@@ -24,30 +29,29 @@ const HomeScreen: React.FC = () => {
       </TouchableOpacity>
 
       <Image source={require('../assets/icon.png')} style={styles.logo} />
-      <Text style={styles.welcome}>Bem-vindo ao MotoScan</Text>
-      <Text style={styles.description}>Gerencie o status das motos da frota Mottu com agilidade e controle.</Text>
+      
+      {/* 2. Textos atualizados para usar o i18n */}
+      <Text style={styles.welcome}>{i18n.t('home.welcome')}</Text>
+      <Text style={styles.description}>{i18n.t('home.description')}</Text>
 
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('Cadastrar Moto')}
       >
-        <Text style={styles.buttonText}>Cadastrar Moto</Text>
+        <Text style={styles.buttonText}>{i18n.t('home.register_moto_button')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('Motos')}
       >
-        <Text style={styles.buttonText}>Visualizar Motos</Text>
+        <Text style={styles.buttonText}>{i18n.t('home.view_motos_button')}</Text>
       </TouchableOpacity>
-      
-      
     </View>
   );
 };
 
-
-const getStyles = (colors: any) => StyleSheet.create({
+const getStyles = (colors: ColorPalette) => StyleSheet.create({ // Use o tipo ColorPalette
   container: {
     flex: 1,
     backgroundColor: colors.background,
