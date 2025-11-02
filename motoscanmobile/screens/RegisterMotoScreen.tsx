@@ -9,6 +9,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { saveMotoToAPI } from '../services/api';
 import { RootStackParamList } from '../types/index';
 import { useTheme } from '../context/ThemeContext';
+import type { ColorPalette } from '../constants/Colors';
+import i18n from '../i18n.config'; // Importe o i18n
 
 const motoModelos = [
   { nome: 'MOTO SPORT', imagem: require('../assets/sport-2.webp') },
@@ -23,6 +25,12 @@ const RegisterMotoScreen: React.FC = () => {
 
   const [placa, setPlaca] = useState('');
   const [modeloSelecionado, setModeloSelecionado] = useState(motoModelos[1]);
+  // Ajustamos os status para usarem as chaves de tradução
+  const statusOptions = {
+    PRONTA: i18n.t('registerMoto.statusReady'),
+    MECANICO: i18n.t('registerMoto.statusMaint'),
+    BO: i18n.t('registerMoto.statusStolen'),
+  };
   const [status, setStatus] = useState<'BO' | 'MECANICO' | 'PRONTA'>('PRONTA');
   const [erroPlaca, setErroPlaca] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,7 +42,7 @@ const RegisterMotoScreen: React.FC = () => {
     const placaMercosul = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
 
     if (placaFormatada.length === 7 && !placaAntiga.test(placaFormatada) && !placaMercosul.test(placaFormatada)) {
-      setErroPlaca('Placa inválida. Use o formato ABC1234 ou ABC1D23.');
+      setErroPlaca(i18n.t('registerMoto.plateError'));
     } else {
       setErroPlaca('');
     }
@@ -42,7 +50,7 @@ const RegisterMotoScreen: React.FC = () => {
 
   const salvarCadastro = async () => {
     if (!placa.trim() || erroPlaca) {
-      Alert.alert('Erro', 'Por favor, corrija os erros no formulário.');
+      Alert.alert(i18n.t('registerMoto.errorTitle'), i18n.t('registerMoto.errorValidation'));
       return;
     }
     setLoading(true);
@@ -59,13 +67,13 @@ const RegisterMotoScreen: React.FC = () => {
     try {
       const motoSalva = await saveMotoToAPI(novaMotoPayload);
       if (motoSalva) {
-        Alert.alert('Sucesso!', 'Moto cadastrada com sucesso.');
+        Alert.alert(i18n.t('registerMoto.successTitle'), i18n.t('registerMoto.successMessage'));
         navigation.navigate('Motos');
       } else {
-        Alert.alert('Erro', 'Não foi possível cadastrar a moto.');
+        Alert.alert(i18n.t('registerMoto.errorTitle'), i18n.t('registerMoto.errorApi'));
       }
     } catch (error: any) {
-      Alert.alert('Erro de Cadastro', error.message);
+      Alert.alert(i18n.t('registerMoto.errorRegister'), error.message);
     } finally {
       setLoading(false);
     }
@@ -73,21 +81,21 @@ const RegisterMotoScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cadastrar Moto</Text>
+      <Text style={styles.title}>{i18n.t('registerMoto.title')}</Text>
 
-      <Text style={styles.label}>Placa (ex: ABC1234 ou ABC1D23):</Text>
+      <Text style={styles.label}>{i18n.t('registerMoto.plateLabel')}</Text>
       <TextInput
         style={[styles.input, erroPlaca ? styles.inputErro : null]}
         value={placa}
         onChangeText={validarPlaca}
-        placeholder="Digite a placa"
+        placeholder={i18n.t('registerMoto.platePlaceholder')}
         placeholderTextColor={colors.border}
         maxLength={7}
         autoCapitalize="characters"
       />
       {erroPlaca ? <Text style={styles.erroTexto}>{erroPlaca}</Text> : null}
 
-      <Text style={styles.label}>Modelo:</Text>
+      <Text style={styles.label}>{i18n.t('registerMoto.modelLabel')}</Text>
       <FlatList
         horizontal
         data={motoModelos}
@@ -107,30 +115,26 @@ const RegisterMotoScreen: React.FC = () => {
         contentContainerStyle={{ paddingVertical: 10 }}
       />
 
-      <Text style={styles.label}>Status:</Text>
+      <Text style={styles.label}>{i18n.t('registerMoto.statusLabel')}</Text>
       <View style={styles.statusContainer}>
-        {['PRONTA', 'MECANICO', 'BO'].map((s) => (
+        {/* Mapeia as chaves do objeto de status para criar os botões */}
+        {(Object.keys(statusOptions) as Array<keyof typeof statusOptions>).map((key) => (
           <TouchableOpacity
-            key={s}
+            key={key}
             style={[
               styles.statusButton,
-              status === s && (
-                s === 'BO' 
-                  ? styles.statusBOSelected 
-                  : s === 'MECANICO' 
-                  ? styles.statusMECANICOSelected 
-                  : styles.statusPRONTASelected
+              status === key && (
+                key === 'BO' 
+                  ? styles.statusBO
+                  : key === 'MECANICO' 
+                  ? styles.statusMECANICO 
+                  : styles.statusPRONTA
               )
             ]}
-            onPress={() => setStatus(s as typeof status)}
+            onPress={() => setStatus(key)}
           >
-            <Text style={[
-              styles.statusText, 
-              status === s && { 
-                color: isDarkMode ? '#FFFFFF' : '#000000' // Texto branco no modo escuro, preto no claro
-              }
-            ]}>
-              {s}
+            <Text style={[styles.statusText, status === key && styles.selectedStatusText]}>
+              {statusOptions[key]}
             </Text>
           </TouchableOpacity>
         ))}
@@ -144,14 +148,14 @@ const RegisterMotoScreen: React.FC = () => {
         {loading ? (
           <ActivityIndicator color={colors.background} />
         ) : (
-          <Text style={styles.saveButtonText}>Salvar</Text>
+          <Text style={styles.saveButtonText}>{i18n.t('registerMoto.saveButton')}</Text>
         )}
       </TouchableOpacity>
     </View>
   );
 };
 
-const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
+const getStyles = (colors: ColorPalette, isDarkMode: boolean) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
@@ -224,24 +228,27 @@ const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     borderColor: colors.border,
-    alignItems: 'center',
     backgroundColor: colors.card,
+    alignItems: 'center',
   },
-  statusPRONTASelected: { 
-    backgroundColor: '#28a745',
-    borderColor: '#218838', 
+  statusPRONTA: {
+    backgroundColor: '#e6f8ed',
+    borderColor: '#00C247',
   },
-  statusMECANICOSelected: { 
-    backgroundColor: '#ffc107',
-    borderColor: '#e0a800', 
+  statusMECANICO: {
+    backgroundColor: '#fff7cc',
+    borderColor: '#ffcc00',
   },
-  statusBOSelected: { 
-    backgroundColor: '#dc3545',
-    borderColor: '#c82333', 
+  statusBO: {
+    backgroundColor: '#ffdddd',
+    borderColor: '#ff0000',
   },
-  statusText: { 
+  statusText: {
     color: colors.text,
-    fontWeight: '600' 
+    fontWeight: '600',
+  },
+  selectedStatusText: {
+    color: '#000000',
   },
   saveButton: {
     marginTop: 20,

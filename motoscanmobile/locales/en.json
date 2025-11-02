@@ -42,5 +42,23 @@
     "deleteConfirmMessage": "Are you sure you want to delete moto with plate {plate}?",
     "deleteError": "Could not delete moto.",
     "loadError": "Could not load motos list."
+  },
+  "registerMoto": {
+    "title": "Register Moto",
+    "plateLabel": "Plate (ex: ABC1234 or ABC1D23):",
+    "platePlaceholder": "Enter plate",
+    "plateError": "Invalid plate. Use format ABC1234 or ABC1D23.",
+    "modelLabel": "Model:",
+    "statusLabel": "Status:",
+    "statusReady": "READY",
+    "statusMaint": "MAINTENANCE",
+    "statusStolen": "STOLEN",
+    "saveButton": "Save",
+    "errorTitle": "Error",
+    "errorValidation": "Please correct the errors on the form.",
+    "successTitle": "Success!",
+    "successMessage": "Moto registered successfully.",
+    "errorApi": "Could not register moto.",
+    "errorRegister": "Registration Error"
   }
 }

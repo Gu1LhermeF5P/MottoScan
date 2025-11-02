@@ -42,5 +42,23 @@
     "deleteConfirmMessage": "Deseja realmente apagar a moto de placa {plate}?",
     "deleteError": "Não foi possível excluir a moto.",
     "loadError": "Não foi possível carregar a lista de motos."
+  },
+  "registerMoto": {
+    "title": "Cadastrar Moto",
+    "plateLabel": "Placa (ex: ABC1234 ou ABC1D23):",
+    "platePlaceholder": "Digite a placa",
+    "plateError": "Placa inválida. Use o formato ABC1234 ou ABC1D23.",
+    "modelLabel": "Modelo:",
+    "statusLabel": "Status:",
+    "statusReady": "PRONTA",
+    "statusMaint": "MECÂNICO",
+    "statusStolen": "B.O.",
+    "saveButton": "Salvar",
+    "errorTitle": "Erro",
+    "errorValidation": "Por favor, corrija os erros no formulário.",
+    "successTitle": "Sucesso!",
+    "successMessage": "Moto cadastrada com sucesso.",
+    "errorApi": "Não foi possível cadastrar a moto.",
+    "errorRegister": "Erro de Cadastro"
   }
 }

@@ -42,5 +42,23 @@
     "deleteConfirmMessage": "¿Estás seguro de que quieres eliminar la moto con matrícula {plate}?",
     "deleteError": "No se pudo eliminar la moto.",
     "loadError": "No se pudo cargar la lista de motos."
+  },
+  "registerMoto": {
+    "title": "Registrar Moto",
+    "plateLabel": "Matrícula (ej: ABC1234 o ABC1D23):",
+    "platePlaceholder": "Ingrese la matrícula",
+    "plateError": "Matrícula inválida. Use el formato ABC1234 o ABC1D23.",
+    "modelLabel": "Modelo:",
+    "statusLabel": "Estado:",
+    "statusReady": "LISTA",
+    "statusMaint": "MECÁNICO",
+    "statusStolen": "ROBADA",
+    "saveButton": "Guardar",
+    "errorTitle": "Error",
+    "errorValidation": "Por favor, corrija los errores en el formulario.",
+    "successTitle": "¡Éxito!",
+    "successMessage": "Moto registrada con éxito.",
+    "errorApi": "No se pudo registrar la moto.",
+    "errorRegister": "Error de Registro"
   }
 }
