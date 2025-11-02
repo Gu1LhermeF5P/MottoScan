@@ -9,7 +9,16 @@
     "newArchEnabled": true,
     "plugins": [
       "expo-localization"
-    ]
+    ],
+    "extra": {
+      "commitHash": "04f072685943cd5e40728802dc1bdfc7c6ef73fb",
+      "eas": {
+        "projectId": "ccd27148-6826-42e5-858c-d298fb7196d7"
+      }
+    },
+    "android": {
+      "package": "com.guidev3k.motoscanmobile"
+    }
   },
   "ios": {
     "supportsTablet": true

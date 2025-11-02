@@ -6,7 +6,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "lint": "eslint \"**/*.{ts,tsx}\" --fix",
+    "prebuild": "node -e \"const commitHash = require('child_process').execSync('git rev-parse HEAD').toString().trim(); const fs = require('fs'); const appJson = JSON.parse(fs.readFileSync('./app.json')); appJson.expo.extra = { ...appJson.expo.extra, commitHash }; fs.writeFileSync('./app.json', JSON.stringify(appJson, null, 2));\""
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
