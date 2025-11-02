@@ -4,13 +4,21 @@
     "email": "Correo Electrónico",
     "password": "Contraseña",
     "button": "Ingresar",
-    "register_link": "¿No tienes una cuenta? Regístrate"
+    "register_link": "¿No tienes una cuenta? Regístrate",
+    "errorTitle": "Fallo de Inicio de Sesión",
+    "errorFillAllFields": "Por favor, rellene todos los campos.",
+    "errorInvalid": "Correo electrónico o contraseña no válidos."
   },
   "register": {
     "title": "Crear Cuenta",
     "name": "Nombre Completo",
     "button": "Registrar",
-    "login_link": "¿Ya tienes una cuenta? Inicia sesión"
+    "login_link": "¿Ya tienes una cuenta? Inicia sesión",
+    "errorTitle": "Fallo de Registro",
+    "errorFillAllFields": "Por favor, rellene todos los campos.",
+    "successTitle": "¡Éxito!",
+    "successMessage": "Tu cuenta ha sido creada. Ahora puedes iniciar sesión.",
+    "errorApi": "No se pudo crear la cuenta. Este correo electrónico ya puede estar en uso."
   },
   "home": {
     "welcome": "Bienvenido a MotoScan",

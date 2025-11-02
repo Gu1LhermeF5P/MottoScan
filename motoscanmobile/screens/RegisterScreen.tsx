@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import type { ColorPalette } from '../constants/Colors';
+import i18n from '../i18n.config'; // Importe o i18n
 
 const RegisterScreen = ({ navigation }: any) => {
   const [nome, setNome] = useState('');
@@ -12,41 +14,38 @@ const RegisterScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
 
- 
   const handleRegister = async () => {
-   
     if (!nome.trim() || !email.trim() || !senha.trim()) {
-      Alert.alert("Erro de Cadastro", "Por favor, preencha todos os campos.");
+      Alert.alert(i18n.t('register.errorTitle'), i18n.t('register.errorFillAllFields'));
       return;
     }
     
     setLoading(true);
-    
     const success = await register(nome, email, senha);
     setLoading(false);
 
-    
     if (success) {
-      Alert.alert("Sucesso!", "Sua conta foi criada. Agora você pode fazer o login.");
-      navigation.navigate('Login'); // Leva o usuário para a tela de login
+      Alert.alert(i18n.t('register.successTitle'), i18n.t('register.successMessage'));
+      navigation.navigate('Login');
     } else {
-      Alert.alert("Falha no Cadastro", "Não foi possível criar a conta. Este email pode já estar em uso.");
+      Alert.alert(i18n.t('register.errorTitle'), i18n.t('register.errorApi'));
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Criar Conta</Text>
+      {/* Substitua os textos fixos por chaves i18n */}
+      <Text style={styles.title}>{i18n.t('register.title')}</Text>
       <TextInput 
         style={styles.input} 
-        placeholder="Nome Completo" 
+        placeholder={i18n.t('register.name')}
         placeholderTextColor={colors.border} 
         value={nome} 
         onChangeText={setNome} 
       />
       <TextInput 
         style={styles.input} 
-        placeholder="Email" 
+        placeholder={i18n.t('login.email')}
         placeholderTextColor={colors.border} 
         value={email} 
         onChangeText={setEmail} 
@@ -55,7 +54,7 @@ const RegisterScreen = ({ navigation }: any) => {
       />
       <TextInput 
         style={styles.input} 
-        placeholder="Senha" 
+        placeholder={i18n.t('login.password')}
         placeholderTextColor={colors.border} 
         value={senha} 
         onChangeText={setSenha} 
@@ -69,17 +68,18 @@ const RegisterScreen = ({ navigation }: any) => {
         {loading ? (
           <ActivityIndicator color={colors.background} />
         ) : (
-          <Text style={styles.buttonText}>Cadastrar</Text>
+          <Text style={styles.buttonText}>{i18n.t('register.button')}</Text>
         )}
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Login')} disabled={loading}>
-        <Text style={styles.linkText}>Já tem uma conta? Faça login</Text>
+        <Text style={styles.linkText}>{i18n.t('register.login_link')}</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-const getStyles = (colors: any) => StyleSheet.create({
+// A função getStyles não muda
+const getStyles = (colors: ColorPalette) => StyleSheet.create({
     container: { 
       flex: 1, 
       justifyContent: 'center', 

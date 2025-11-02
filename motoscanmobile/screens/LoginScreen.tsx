@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import type { ColorPalette } from '../constants/Colors'; 
+import type { ColorPalette } from '../constants/Colors';
+import i18n from '../i18n.config'; 
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -11,28 +12,29 @@ const LoginScreen = ({ navigation }: any) => {
   const { login } = useAuth();
   const { colors } = useTheme(); 
   
-  // A função getStyles agora recebe o tipo ColorPalette
   const styles = getStyles(colors);
 
   const handleLogin = async () => {
     if (!email.trim() || !senha.trim()) {
-      Alert.alert("Erro de Login", "Por favor, preencha os campos de email e senha.");
+      // Você também pode traduzir os alertas!
+      Alert.alert(i18n.t('login.errorTitle'), i18n.t('login.errorFillAllFields'));
       return;
     }
     setLoading(true);
     const success = await login(email, senha);
     setLoading(false);
     if (!success) {
-      Alert.alert("Falha no Login", "O email ou a senha estão incorretos. Tente novamente.");
+      Alert.alert(i18n.t('login.errorTitle'), i18n.t('login.errorInvalid'));
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>MotoScan - Login</Text>
+      {/* 2. Substitua os textos fixos por chaves i18n */}
+      <Text style={styles.title}>{i18n.t('login.title')}</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder={i18n.t('login.email')}
         placeholderTextColor={colors.border}
         value={email}
         onChangeText={setEmail}
@@ -41,7 +43,7 @@ const LoginScreen = ({ navigation }: any) => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Senha"
+        placeholder={i18n.t('login.password')}
         placeholderTextColor={colors.border}
         value={senha}
         onChangeText={setSenha}
@@ -55,17 +57,17 @@ const LoginScreen = ({ navigation }: any) => {
         {loading ? (
           <ActivityIndicator color={colors.background} />
         ) : (
-          <Text style={styles.buttonText}>Entrar</Text>
+          <Text style={styles.buttonText}>{i18n.t('login.button')}</Text>
         )}
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={loading}>
-        <Text style={styles.linkText}>Não tem uma conta? Cadastre-se</Text>
+        <Text style={styles.linkText}>{i18n.t('login.register_link')}</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-
+// A função getStyles não muda
 const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,

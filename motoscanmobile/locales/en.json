@@ -4,13 +4,21 @@
     "email": "Email",
     "password": "Password",
     "button": "Sign In",
-    "register_link": "Don't have an account? Sign Up"
+    "register_link": "Don't have an account? Sign Up",
+    "errorTitle": "Login Failed",
+    "errorFillAllFields": "Please fill in all fields.",
+    "errorInvalid": "Invalid email or password."
   },
   "register": {
     "title": "Create Account",
     "name": "Full Name",
     "button": "Sign Up",
-    "login_link": "Already have an account? Sign In"
+    "login_link": "Already have an account? Sign In",
+    "errorTitle": "Registration Failed",
+    "errorFillAllFields": "Please fill in all fields.",
+    "successTitle": "Success!",
+    "successMessage": "Your account has been created. You can now log in.",
+    "errorApi": "Could not create account. This email may already be in use."
   },
   "home": {
     "welcome": "Welcome to MotoScan",
