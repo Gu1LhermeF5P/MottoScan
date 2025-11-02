@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { 
-    View, 
-    Text, 
-    FlatList, 
-    Image, 
-    TouchableOpacity, 
-    StyleSheet, 
-    Alert,
-    ActivityIndicator
+    View, Text, FlatList, Image, TouchableOpacity, 
+    StyleSheet, Alert, ActivityIndicator 
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { getMotosFromAPI, deleteMotoFromAPI } from '../services/api';
 import type { RootStackParamList, Moto } from '../types';
-import { useTheme } from '../context/ThemeContext'; // Importe o hook do tema
+import { useTheme } from '../context/ThemeContext';
+import type { ColorPalette } from '../constants/Colors';
+import i18n from '../i18n.config'; // Importe o i18n
 
 const imageMap: Record<string, any> = {
   'MOTO SPORT': require('../assets/sport-2.webp'),
@@ -28,8 +24,8 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
 
 const MotoListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { colors } = useTheme(); // Obtenha as cores do tema
-  const styles = getStyles(colors); // Crie os estilos dinâmicos
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [motos, setMotos] = useState<Moto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,16 +36,14 @@ const MotoListScreen: React.FC = () => {
       try {
         setLoading(true);
         const dataFromApi = await getMotosFromAPI();
-        
         const mappedData = dataFromApi.map((moto) => ({
           ...moto,
           imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
         }));
-        
         setMotos(mappedData);
       } catch (error) {
         console.error("Erro ao buscar motos:", error);
-        Alert.alert("Erro", "Não foi possível carregar a lista de motos.");
+        Alert.alert(i18n.t('common.error'), i18n.t('motoList.loadError'));
       } finally {
         setLoading(false);
       }
@@ -62,19 +56,20 @@ const MotoListScreen: React.FC = () => {
 
   const deleteMoto = async (placa: string) => {
     Alert.alert(
-      'Confirmar Exclusão',
-      `Deseja realmente apagar a moto de placa ${placa}?`,
+      i18n.t('motoList.deleteConfirmTitle'),
+      // Usamos a interpolação para adicionar a placa à mensagem
+      i18n.t('motoList.deleteConfirmMessage', { plate: placa }),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: i18n.t('common.cancel'), style: 'cancel' },
         {
-          text: 'Excluir',
+          text: i18n.t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             const success = await deleteMotoFromAPI(placa);
             if (success) {
               setMotos(prevMotos => prevMotos.filter(moto => moto.placa !== placa));
             } else {
-              Alert.alert('Erro', 'Não foi possível excluir a moto.');
+              Alert.alert(i18n.t('common.error'), i18n.t('motoList.deleteError'));
             }
           },
         },
@@ -83,9 +78,9 @@ const MotoListScreen: React.FC = () => {
   };
   
   const getStatusColor = (moto: Moto) => {
-    if (moto.roubada) return '#dc3545'; // Vermelho
-    if (moto.falhaMecanica) return '#ffc107'; // Amarelo
-    return '#28a745'; // Verde
+    if (moto.roubada) return '#dc3545';
+    if (moto.falhaMecanica) return '#ffc107';
+    return '#28a745';
   };
 
   const renderItem = ({ item }: { item: Moto }) => (
@@ -93,7 +88,7 @@ const MotoListScreen: React.FC = () => {
       <Image source={item.imagem} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.model}>{item.modelo}</Text>
-        <Text style={styles.placaText}>Placa: {item.placa}</Text>
+        <Text style={styles.placaText}>{i18n.t('common.plate')}: {item.placa}</Text>
       </View>
       
       <View style={styles.actionsContainer}>
@@ -101,10 +96,10 @@ const MotoListScreen: React.FC = () => {
           style={styles.editButton} 
           onPress={() => navigation.navigate('EditMoto', { moto: item })}
         >
-          <Text style={styles.editText}>Editar</Text>
+          <Text style={styles.editText}>{i18n.t('common.edit')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => deleteMoto(item.placa)} style={styles.deleteButton}>
-          <Text style={styles.deleteText}>Excluir</Text>
+          <Text style={styles.deleteText}>{i18n.t('common.delete')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -114,16 +109,18 @@ const MotoListScreen: React.FC = () => {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color={colors.tint} />
-        <Text style={{ color: colors.text, marginTop: 10 }}>Carregando motos...</Text>
+        <Text style={{ color: colors.text, marginTop: 10 }}>
+          {i18n.t('motoList.loading')}
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Lista de Motos</Text>
+      <Text style={styles.header}>{i18n.t('motoList.title')}</Text>
       {motos.length === 0 ? (
-        <Text style={styles.emptyText}>Nenhuma moto cadastrada no momento.</Text>
+        <Text style={styles.emptyText}>{i18n.t('motoList.empty')}</Text>
       ) : (
         <FlatList
           data={motos}
@@ -135,7 +132,7 @@ const MotoListScreen: React.FC = () => {
   );
 };
 
-const getStyles = (colors: any) => StyleSheet.create({
+const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
@@ -206,11 +203,11 @@ const getStyles = (colors: any) => StyleSheet.create({
   deleteButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#dc354520', // Fundo vermelho claro
+    backgroundColor: '#dc354520',
     borderRadius: 6,
   },
   deleteText: {
-    color: '#c82333', // Vermelho escuro
+    color: '#c82333',
     fontWeight: 'bold',
     fontSize: 14,
   },

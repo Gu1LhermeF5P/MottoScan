@@ -26,5 +26,21 @@
     "register_moto_button": "Register Moto",
     "view_motos_button": "View Motos",
     "logout_button": "Log Out"
+  },
+  "common": {
+    "error": "Error",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "plate": "Plate"
+  },
+  "motoList": {
+    "title": "Motos List",
+    "loading": "Loading motos...",
+    "empty": "No motos registered at this time.",
+    "deleteConfirmTitle": "Confirm Deletion",
+    "deleteConfirmMessage": "Are you sure you want to delete moto with plate {plate}?",
+    "deleteError": "Could not delete moto.",
+    "loadError": "Could not load motos list."
   }
 }

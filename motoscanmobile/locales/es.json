@@ -26,5 +26,21 @@
     "register_moto_button": "Registrar Moto",
     "view_motos_button": "Ver Motos",
     "logout_button": "Cerrar Sesión"
+  },
+  "common": {
+    "error": "Error",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "plate": "Matrícula"
+  },
+  "motoList": {
+    "title": "Lista de Motos",
+    "loading": "Cargando motos...",
+    "empty": "No hay motos registradas en este momento.",
+    "deleteConfirmTitle": "Confirmar Eliminación",
+    "deleteConfirmMessage": "¿Estás seguro de que quieres eliminar la moto con matrícula {plate}?",
+    "deleteError": "No se pudo eliminar la moto.",
+    "loadError": "No se pudo cargar la lista de motos."
   }
 }

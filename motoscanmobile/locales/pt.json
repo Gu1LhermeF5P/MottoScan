@@ -26,5 +26,21 @@
     "register_moto_button": "Cadastrar Moto",
     "view_motos_button": "Visualizar Motos",
     "logout_button": "Sair da Conta"
+  },
+  "common": {
+    "error": "Erro",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "plate": "Placa"
+  },
+  "motoList": {
+    "title": "Lista de Motos",
+    "loading": "Carregando motos...",
+    "empty": "Nenhuma moto cadastrada no momento.",
+    "deleteConfirmTitle": "Confirmar Exclusão",
+    "deleteConfirmMessage": "Deseja realmente apagar a moto de placa {plate}?",
+    "deleteError": "Não foi possível excluir a moto.",
+    "loadError": "Não foi possível carregar a lista de motos."
   }
 }
