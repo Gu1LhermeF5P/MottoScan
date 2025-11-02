@@ -5,14 +5,17 @@ import { useIsFocused } from '@react-navigation/native';
 import { getMotosFromAPI } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 import { Moto } from '../types';
+import i18n from '../i18n.config'; // Importe o i18n
+import type { ColorPalette } from '../constants/Colors'; // Importe o tipo de Cor
 
 const PatioScreen: React.FC = () => {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
   const [motos, setMotos] = useState<Moto[]>([]);
   const [loading, setLoading] = useState(true);
   const isFocused = useIsFocused();
   
-  // Busca os dados da API sempre que a tela entra em foco
   useEffect(() => {
     const fetchMotos = async () => {
       try {
@@ -20,7 +23,7 @@ const PatioScreen: React.FC = () => {
         const dataFromApi = await getMotosFromAPI();
         setMotos(dataFromApi);
       } catch (error) {
-        Alert.alert("Erro", "Não foi possível carregar os dados do pátio.");
+        Alert.alert(i18n.t('patio.errorTitle'), i18n.t('patio.errorMessage'));
       } finally {
         setLoading(false);
       }
@@ -31,7 +34,6 @@ const PatioScreen: React.FC = () => {
     }
   }, [isFocused]);
 
-  // Filtra as motos por status. useMemo evita que o filtro seja refeito a cada renderização.
   const motosPorStatus = useMemo(() => {
     const prontas = motos.filter(m => !m.falhaMecanica && !m.roubada);
     const emManutencao = motos.filter(m => m.falhaMecanica);
@@ -39,24 +41,24 @@ const PatioScreen: React.FC = () => {
     return { prontas, emManutencao, comBO };
   }, [motos]);
 
-  const styles = getStyles(colors);
-
   if (loading) {
     return (
       <View style={[styles.container, styles.loader]}>
         <ActivityIndicator size="large" color={colors.tint} />
-        <Text style={styles.header}>Carregando Pátio...</Text>
+        <Text style={styles.loadingText}>{i18n.t('patio.loading')}</Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.header}>Visão Geral do Pátio</Text>
+      <Text style={styles.header}>{i18n.t('patio.title')}</Text>
       
       {/* Zona de Motos Disponíveis */}
       <View style={[styles.zone, styles.zoneDisponivel]}>
-        <Text style={styles.zoneTitle}>Disponíveis ({motosPorStatus.prontas.length})</Text>
+        <Text style={styles.zoneTitle}>
+          {i18n.t('patio.zoneAvailable')} ({motosPorStatus.prontas.length})
+        </Text>
         <View style={styles.motoContainer}>
           {motosPorStatus.prontas.map(moto => (
             <View key={moto.placa} style={[styles.motoDot, styles.dotDisponivel]} />
@@ -66,7 +68,9 @@ const PatioScreen: React.FC = () => {
 
       {/* Zona de Motos em Manutenção */}
       <View style={[styles.zone, styles.zoneManutencao]}>
-        <Text style={styles.zoneTitle}>Em Manutenção ({motosPorStatus.emManutencao.length})</Text>
+        <Text style={styles.zoneTitle}>
+          {i18n.t('patio.zoneMaintenance')} ({motosPorStatus.emManutencao.length})
+        </Text>
         <View style={styles.motoContainer}>
           {motosPorStatus.emManutencao.map(moto => (
             <View key={moto.placa} style={[styles.motoDot, styles.dotManutencao]} />
@@ -76,7 +80,9 @@ const PatioScreen: React.FC = () => {
 
       {/* Zona de Motos com B.O. */}
       <View style={[styles.zone, styles.zoneBO]}>
-        <Text style={styles.zoneTitle}>Com B.O. ({motosPorStatus.comBO.length})</Text>
+        <Text style={styles.zoneTitle}>
+          {i18n.t('patio.zoneStolen')} ({motosPorStatus.comBO.length})
+        </Text>
         <View style={styles.motoContainer}>
           {motosPorStatus.comBO.map(moto => (
             <View key={moto.placa} style={[styles.motoDot, styles.dotBO]} />
@@ -88,7 +94,7 @@ const PatioScreen: React.FC = () => {
   );
 };
 
-const getStyles = (colors: any) => StyleSheet.create({
+const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
@@ -97,6 +103,11 @@ const getStyles = (colors: any) => StyleSheet.create({
   loader: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingText: {
+    color: colors.text,
+    marginTop: 10,
+    fontSize: 16,
   },
   header: {
     fontSize: 24,
@@ -111,18 +122,18 @@ const getStyles = (colors: any) => StyleSheet.create({
     padding: 15,
   },
   zoneDisponivel: {
-    backgroundColor: 'rgba(0, 194, 71, 0.1)',
-    borderColor: 'rgba(0, 194, 71, 0.4)',
+    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+    borderColor: 'rgba(40, 167, 69, 0.4)',
     borderWidth: 1,
   },
   zoneManutencao: {
-    backgroundColor: 'rgba(255, 165, 0, 0.1)',
-    borderColor: 'rgba(255, 165, 0, 0.4)',
+    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+    borderColor: 'rgba(255, 193, 7, 0.4)',
     borderWidth: 1,
   },
   zoneBO: {
-    backgroundColor: 'rgba(255, 77, 77, 0.1)',
-    borderColor: 'rgba(255, 77, 77, 0.4)',
+    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+    borderColor: 'rgba(220, 53, 69, 0.4)',
     borderWidth: 1,
   },
   zoneTitle: {
@@ -133,22 +144,22 @@ const getStyles = (colors: any) => StyleSheet.create({
   },
   motoContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap', // Permite que as bolinhas quebrem a linha
+    flexWrap: 'wrap',
   },
   motoDot: {
     width: 20,
     height: 20,
-    borderRadius: 10, // Metade da largura/altura para ser um círculo
+    borderRadius: 10,
     margin: 4,
   },
   dotDisponivel: {
-    backgroundColor: '#00C247',
+    backgroundColor: '#28a745',
   },
   dotManutencao: {
-    backgroundColor: '#FFA500',
+    backgroundColor: '#ffc107',
   },
   dotBO: {
-    backgroundColor: '#FF4D4D',
+    backgroundColor: '#dc3545',
   },
 });
 

@@ -71,5 +71,14 @@
     "errorTitle": "Erro",
     "errorMessage": "Não foi possível atualizar a moto.",
     "errorUnexpected": "Ocorreu um erro inesperado."
+  },
+  "patio": {
+    "title": "Visão Geral do Pátio",
+    "loading": "Carregando Pátio...",
+    "errorTitle": "Erro",
+    "errorMessage": "Não foi possível carregar os dados do pátio.",
+    "zoneAvailable": "Disponíveis",
+    "zoneMaintenance": "Em Manutenção",
+    "zoneStolen": "Com B.O."
   }
 }

@@ -71,5 +71,14 @@
     "errorTitle": "Error",
     "errorMessage": "Could not update moto.",
     "errorUnexpected": "An unexpected error occurred."
+  },
+  "patio": {
+    "title": "Yard Overview",
+    "loading": "Loading Yard...",
+    "errorTitle": "Error",
+    "errorMessage": "Could not load yard data.",
+    "zoneAvailable": "Available",
+    "zoneMaintenance": "In Maintenance",
+    "zoneStolen": "Stolen"
   }
 }

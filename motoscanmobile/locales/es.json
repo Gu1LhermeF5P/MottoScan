@@ -71,5 +71,14 @@
     "errorTitle": "Error",
     "errorMessage": "No se pudo actualizar la moto.",
     "errorUnexpected": "Ocurrió un error inesperado."
+  },
+  "patio": {
+    "title": "Vista General del Patio",
+    "loading": "Cargando Patio...",
+    "errorTitle": "Error",
+    "errorMessage": "No se pudo cargar los datos del patio.",
+    "zoneAvailable": "Disponibles",
+    "zoneMaintenance": "En Mantenimiento",
+    "zoneStolen": "Robadas"
   }
 }
