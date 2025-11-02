@@ -9,9 +9,10 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LocalizationProvider, useLocalization } from './context/LocalizationContext';
 
+// Importe os tipos de navegação corretos
 import type { RootStackParamList, TabParamList } from './types';
 
-
+// Importe todas as suas telas
 import HomeScreen from './screens/HomeScreen';
 import RegisterMotoScreen from './screens/RegisterMotoScreen';
 import MotoListScreen from './screens/MotoListScreen';
@@ -20,6 +21,7 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import EditMotoScreen from './screens/EditMotoScreen';
 import MotoDetailsScreen from './screens/MotoDetailScreen';
+import AboutScreen from './screens/AboutScreen'; // 1. Importe a tela Sobre
 
 // Use os tipos corretos ao criar os navegadores
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -41,29 +43,69 @@ function AppTabs() {
         tabBarInactiveTintColor: colors.tabIconDefault,
         headerStyle: { backgroundColor: colors.background },
         headerTitleStyle: { color: colors.text },
-
+        
         headerRight: () => (
           <TouchableOpacity onPress={logout} style={{ marginRight: 15 }}>
             <Ionicons name="log-out-outline" size={26} color={colors.text} />
           </TouchableOpacity>
         ),
 
+        // 2. Lógica de ícone atualizada para incluir 'About'
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'alert';
-          if (route.name === 'Home') iconName = 'home-outline';
           
-          else if (route.name === i18n.t('home.register_moto_button')) iconName = 'add-circle-outline';
-          else if (route.name === i18n.t('home.view_motos_button')) iconName = 'bicycle-outline';
-          else if (route.name === 'Pátio') iconName = 'map-outline'; 
+          if (route.name === 'Home') iconName = 'home-outline';
+          else if (route.name === 'RegisterMoto') iconName = 'add-circle-outline';
+          else if (route.name === 'MotoList') iconName = 'bicycle-outline';
+          else if (route.name === 'Patio') iconName = 'map-outline'; 
+          else if (route.name === 'About') iconName = 'information-circle-outline'; // Ícone para "Sobre"
+          
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
     >
-      
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Cadastrar Moto" component={RegisterMotoScreen} />
-      <Tab.Screen name="Motos" component={MotoListScreen} />
-      <Tab.Screen name="Pátio" component={PatioScreen} />
+      {/* 3. Nomes das abas atualizados para usar nomes estáticos e labels traduzidos */}
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen} 
+        options={{
+          title: "Home", // Título do Cabeçalho
+          tabBarLabel: "Home" // Texto da Aba
+        }}
+      />
+      <Tab.Screen 
+        name="RegisterMoto" 
+        component={RegisterMotoScreen} 
+        options={{
+          title: i18n.t('registerMoto.title'),
+          tabBarLabel: i18n.t('registerMoto.tabName', {defaultValue: 'Cadastrar'})
+        }}
+      />
+      <Tab.Screen 
+        name="MotoList" 
+        component={MotoListScreen} 
+        options={{
+          title: i18n.t('motoList.title'),
+          tabBarLabel: i18n.t('motoList.tabName', {defaultValue: 'Motos'})
+        }}
+      />
+      <Tab.Screen 
+        name="Patio" 
+        component={PatioScreen} 
+        options={{
+          title: i18n.t('patio.title'),
+          tabBarLabel: i18n.t('patio.tabName', { defaultValue: 'Pátio' })
+        }}
+      />
+      {/* 4. Adicione a nova tela de Aba */}
+      <Tab.Screen 
+        name="About" 
+        component={AboutScreen} 
+        options={{
+          title: i18n.t('about.tabName', { defaultValue: 'Sobre' }),
+          tabBarLabel: i18n.t('about.tabName', { defaultValue: 'Sobre' })
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -140,7 +182,6 @@ function AppNavigator() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      
       {token ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );

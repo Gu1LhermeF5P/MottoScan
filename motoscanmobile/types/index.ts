@@ -1,12 +1,5 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
-export type TabParamList = {
-  Home: undefined;
-  "Cadastrar Moto": undefined; 
-  Motos: undefined;
-  "Pátio": undefined;
-};
-
 
 export type Moto = {
   id: number;
@@ -22,12 +15,21 @@ export type Moto = {
 };
 
 
+export type TabParamList = {
+  Home: undefined;
+  RegisterMoto: undefined; 
+  MotoList: undefined;     
+  Patio: undefined;    
+  About: undefined;    
+};
+
+
 export type RootStackParamList = {
   
   Login: undefined;
   Register: undefined;
   
-  
+ 
   AppTabs: NavigatorScreenParams<TabParamList>;
   
   

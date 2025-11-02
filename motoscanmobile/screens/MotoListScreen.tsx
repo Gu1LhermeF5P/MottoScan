@@ -10,13 +10,15 @@ import {
     ActivityIndicator
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
+// 1. Importe o tipo de navegação do STACK (Pilha)
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { getMotosFromAPI, deleteMotoFromAPI } from '../services/api';
+// 2. Importe o RootStackParamList (o principal) e o tipo Moto
 import type { RootStackParamList, Moto } from '../types';
 import { useTheme } from '../context/ThemeContext';
 import type { ColorPalette } from '../constants/Colors';
-import { useLocalization } from '../context/LocalizationContext'; // 1. Importe o novo hook
+import { useLocalization } from '../context/LocalizationContext';
 
 const imageMap: Record<string, any> = {
   'MOTO SPORT': require('../assets/sport-2.webp'),
@@ -26,12 +28,14 @@ const imageMap: Record<string, any> = {
   'MOTO ELÉTRICA': require('../assets/e-1.webp')
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
+// 3. Crie o tipo de navegação usando o RootStackParamList (o "pai")
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const MotoListScreen: React.FC = () => {
+  // 4. O hook useNavigation agora usará o tipo do Stack
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
-  const { i18n } = useLocalization(); // 2. Obtenha o i18n do contexto
+  const { i18n } = useLocalization(); 
   const styles = getStyles(colors);
 
   const [motos, setMotos] = useState<Moto[]>([]);
@@ -90,10 +94,9 @@ const MotoListScreen: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: Moto }) => (
-    // O TouchableOpacity para o card de detalhes já estava no código anterior,
-    // mas não foi enviado neste. Vou adicioná-lo de volta.
     <TouchableOpacity 
       style={[styles.card, { borderColor: getStatusColor(item) }]}
+      // 5. Esta linha agora é VÁLIDA porque 'MotoDetail' está no RootStackParamList
       onPress={() => navigation.navigate('MotoDetail', { moto: item })}
     >
       <Image source={item.imagem} style={styles.image} />
@@ -106,6 +109,7 @@ const MotoListScreen: React.FC = () => {
         <TouchableOpacity 
           style={styles.editButton} 
           onPressIn={(e) => e.stopPropagation()} // Evita o clique no card
+          // 6. Esta linha também é VÁLIDA porque 'EditMoto' está no RootStackParamList
           onPress={() => navigation.navigate('EditMoto', { moto: item })}
         >
           <Text style={styles.editText}>{i18n.t('common.edit')}</Text>
@@ -148,7 +152,6 @@ const MotoListScreen: React.FC = () => {
   );
 };
 
-// A função getStyles não muda
 const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,

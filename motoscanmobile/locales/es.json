@@ -86,5 +86,13 @@
     "model": "Modelo",
     "zone": "Zona",
     "status": "Estado"
+  },
+  "about": {
+    "tabName": "Sobre",
+    "title": "Sobre MotoScan",
+    "description": "Esta aplicación ayuda a gestionar la flota de motocicletas de la empresa MotoScan.",
+    "version": "Versión",
+    "commit": "Hash del Commit",
+    "developedBy": "Desarrollado por:"
   }
 }

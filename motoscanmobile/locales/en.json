@@ -51,7 +51,7 @@
     "modelLabel": "Model:",
     "statusLabel": "Status:",
     "statusReady": "READY",
-    "statusMaint": "MAINTENANCE",
+    "statusMaint": "SUPPORT",
     "statusStolen": "STOLEN",
     "saveButton": "Save",
     "errorTitle": "Error",
@@ -78,7 +78,7 @@
     "errorTitle": "Error",
     "errorMessage": "Could not load yard data.",
     "zoneAvailable": "Available",
-    "zoneMaintenance": "In Maintenance",
+    "zoneMaintenance": "Maintenance",
     "zoneStolen": "Stolen"
   },
   "motoDetail": {
@@ -86,5 +86,13 @@
     "model": "Model",
     "zone": "Zone",
     "status": "Status"
+  },
+  "about": {
+    "tabName": "About",
+    "title": "About MotoScan",
+    "description": "This app helps manage the motorcycle fleet for the MotoScan company.",
+    "version": "Version",
+    "commit": "Commit Hash",
+    "developedBy": "Developed by:"
   }
 }
