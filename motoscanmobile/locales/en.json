@@ -60,5 +60,16 @@
     "successMessage": "Moto registered successfully.",
     "errorApi": "Could not register moto.",
     "errorRegister": "Registration Error"
+  },
+  "editMoto": {
+    "title": "Edit Moto",
+    "plateLabel": "Plate (not editable)",
+    "zoneLabel": "Zone:",
+    "saveButton": "Save Changes",
+    "successTitle": "Success!",
+    "successMessage": "Moto updated successfully.",
+    "errorTitle": "Error",
+    "errorMessage": "Could not update moto.",
+    "errorUnexpected": "An unexpected error occurred."
   }
 }

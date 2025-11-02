@@ -5,15 +5,17 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { updateMotoAPI } from '../services/api';
 import type { RootStackParamList, Moto } from '../types';
-import { useTheme } from '../context/ThemeContext'; // Importe o hook do tema
+import { useTheme } from '../context/ThemeContext';
+import type { ColorPalette } from '../constants/Colors';
+import i18n from '../i18n.config'; // Importe o i18n
 
 type EditMotoScreenRouteProp = RouteProp<RootStackParamList, 'EditMoto'>;
 
 const EditMotoScreen: React.FC = () => {
   const route = useRoute<EditMotoScreenRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { colors } = useTheme(); // Obtenha as cores do tema
-  const styles = getStyles(colors); // Crie os estilos dinâmicos
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { moto: motoOriginal } = route.params;
 
@@ -36,14 +38,14 @@ const EditMotoScreen: React.FC = () => {
     try {
       const motoAtualizada = await updateMotoAPI(motoOriginal.placa, dadosAtualizados);
       if (motoAtualizada) {
-        Alert.alert('Sucesso', 'Moto atualizada com sucesso!');
+        Alert.alert(i18n.t('editMoto.successTitle'), i18n.t('editMoto.successMessage'));
         navigation.goBack();
       } else {
-        Alert.alert('Erro', 'Não foi possível atualizar a moto.');
+        Alert.alert(i18n.t('editMoto.errorTitle'), i18n.t('editMoto.errorMessage'));
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('Erro', 'Ocorreu um erro inesperado.');
+      Alert.alert(i18n.t('editMoto.errorTitle'), i18n.t('editMoto.errorUnexpected'));
     } finally {
       setLoading(false);
     }
@@ -51,12 +53,13 @@ const EditMotoScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Editar Moto</Text>
+      <Text style={styles.title}>{i18n.t('editMoto.title')}</Text>
 
-      <Text style={styles.label}>Placa (não editável)</Text>
+      <Text style={styles.label}>{i18n.t('editMoto.plateLabel')}</Text>
       <Text style={styles.placaText}>{motoOriginal.placa}</Text>
 
-      <Text style={styles.label}>Modelo:</Text>
+      {/* Reaproveitando a chave de tradução da tela de registro */}
+      <Text style={styles.label}>{i18n.t('registerMoto.modelLabel')}</Text>
       <TextInput
         style={styles.input}
         value={modelo}
@@ -64,7 +67,7 @@ const EditMotoScreen: React.FC = () => {
         placeholderTextColor={colors.border}
       />
       
-      <Text style={styles.label}>Zona:</Text>
+      <Text style={styles.label}>{i18n.t('editMoto.zoneLabel')}</Text>
       <TextInput
         style={styles.input}
         value={zona}
@@ -72,17 +75,24 @@ const EditMotoScreen: React.FC = () => {
         placeholderTextColor={colors.border}
       />
 
-      <Text style={styles.label}>Status:</Text>
+      {/* Reaproveitando a chave de tradução da tela de registro */}
+      <Text style={styles.label}>{i18n.t('registerMoto.statusLabel')}</Text>
       <View style={styles.statusContainer}>
         <TouchableOpacity 
             style={[styles.statusButton, falhaMecanica && styles.statusMecanico]}
             onPress={() => setFalhaMecanica(!falhaMecanica)}>
-            <Text style={[styles.statusButtonText, falhaMecanica && styles.selectedStatusText]}>Manutenção</Text>
+            {/* Reaproveitando a chave de tradução */}
+            <Text style={[styles.statusButtonText, falhaMecanica && styles.selectedStatusText]}>
+              {i18n.t('registerMoto.statusMaint')}
+            </Text>
         </TouchableOpacity>
         <TouchableOpacity 
             style={[styles.statusButton, roubada && styles.statusBO]}
             onPress={() => setRoubada(!roubada)}>
-            <Text style={[styles.statusButtonText, roubada && styles.selectedStatusText]}>Com B.O.</Text>
+            {/* Reaproveitando a chave de tradução */}
+            <Text style={[styles.statusButtonText, roubada && styles.selectedStatusText]}>
+              {i18n.t('registerMoto.statusStolen')}
+            </Text>
         </TouchableOpacity>
       </View>
 
@@ -94,14 +104,14 @@ const EditMotoScreen: React.FC = () => {
         {loading ? (
           <ActivityIndicator color={colors.background} />
         ) : (
-          <Text style={styles.saveButtonText}>Salvar Alterações</Text>
+          <Text style={styles.saveButtonText}>{i18n.t('editMoto.saveButton')}</Text>
         )}
       </TouchableOpacity>
     </View>
   );
 };
 
-const getStyles = (colors: any) => StyleSheet.create({
+const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: { 
     flex: 1, 
     padding: 20, 

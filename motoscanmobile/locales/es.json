@@ -60,5 +60,16 @@
     "successMessage": "Moto registrada con éxito.",
     "errorApi": "No se pudo registrar la moto.",
     "errorRegister": "Error de Registro"
+  },
+  "editMoto": {
+    "title": "Editar Moto",
+    "plateLabel": "Matrícula (no editable)",
+    "zoneLabel": "Zona:",
+    "saveButton": "Guardar Cambios",
+    "successTitle": "¡Éxito!",
+    "successMessage": "Moto actualizada con éxito.",
+    "errorTitle": "Error",
+    "errorMessage": "No se pudo actualizar la moto.",
+    "errorUnexpected": "Ocurrió un error inesperado."
   }
 }

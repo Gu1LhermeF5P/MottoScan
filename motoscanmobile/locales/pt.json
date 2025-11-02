@@ -60,5 +60,16 @@
     "successMessage": "Moto cadastrada com sucesso.",
     "errorApi": "Não foi possível cadastrar a moto.",
     "errorRegister": "Erro de Cadastro"
+  },
+  "editMoto": {
+    "title": "Editar Moto",
+    "plateLabel": "Placa (não editável)",
+    "zoneLabel": "Zona:",
+    "saveButton": "Salvar Alterações",
+    "successTitle": "Sucesso!",
+    "successMessage": "Moto atualizada com sucesso.",
+    "errorTitle": "Erro",
+    "errorMessage": "Não foi possível atualizar a moto.",
+    "errorUnexpected": "Ocorreu um erro inesperado."
   }
 }
