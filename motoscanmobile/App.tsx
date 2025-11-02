@@ -7,6 +7,7 @@ import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import i18n from './i18n.config'; // Importe o i18n para os títulos
 
 // Importe todas as suas telas
 import HomeScreen from './screens/HomeScreen';
@@ -16,6 +17,7 @@ import PatioScreen from './screens/PatioScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import EditMotoScreen from './screens/EditMotoScreen';
+import MotoDetailsScreen from './screens/MotoDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -61,7 +63,6 @@ function AppTabs() {
   );
 }
 
-// O restante do arquivo permanece o mesmo
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -86,10 +87,22 @@ function AppStack() {
         component={EditMotoScreen} 
         options={{ 
           headerShown: true, 
-          title: 'Editar Moto',
+          title: i18n.t('editMoto.title'), 
           headerStyle: { backgroundColor: colors.background },
           headerTitleStyle: { color: colors.text },
           headerTintColor: colors.tint,
+        }} 
+      />
+      
+      <Stack.Screen 
+        name="MotoDetail" 
+        component={MotoDetailsScreen} 
+        options={{ 
+          headerShown: true, 
+          title: i18n.t('motoDetail.title'), 
+          headerStyle: { backgroundColor: colors.background },
+          headerTitleStyle: { color: colors.text },
+          headerTintColor: colors.tint, 
         }} 
       />
     </Stack.Navigator>

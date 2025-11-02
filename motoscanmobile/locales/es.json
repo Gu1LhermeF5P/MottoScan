@@ -80,5 +80,11 @@
     "zoneAvailable": "Disponibles",
     "zoneMaintenance": "En Mantenimiento",
     "zoneStolen": "Robadas"
+  },
+  "motoDetail": {
+    "title": "Detalles de la Moto",
+    "model": "Modelo",
+    "zone": "Zona",
+    "status": "Estado"
   }
 }

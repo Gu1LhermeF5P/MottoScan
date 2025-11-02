@@ -1,158 +1,137 @@
-// screens/MotoListScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { useTheme } from '../context/ThemeContext';
+import type { ColorPalette } from '../constants/Colors';
+import i18n from '../i18n.config';
 import type { RootStackParamList, Moto } from '../types';
+
+type MotoDetailsScreenRouteProp = RouteProp<RootStackParamList, 'MotoDetail'>;
+
 
 const imageMap: Record<string, any> = {
   'MOTO SPORT': require('../assets/sport-2.webp'),
   'POP': require('../assets/pop.webp'),
+  'POP 110i': require('../assets/pop.webp'),
   'MOTO E': require('../assets/e-1.webp'),
   'MOTO ELÉTRICA': require('../assets/e-1.webp')
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
+const MotoDetailsScreen: React.FC = () => {
+  const route = useRoute<MotoDetailsScreenRouteProp>();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-const MotoListScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const [motos, setMotos] = useState<Moto[]>([]);
-  const isFocused = useIsFocused();
+  const { moto } = route.params;
 
-  useEffect(() => {
-    const fetchMotos = async () => {
-      const data = await AsyncStorage.getItem('motos');
-      if (data) {
-        const parsed = JSON.parse(data);
-        const mapped = parsed.map((moto: any) => ({
-          ...moto,
-          imagem: imageMap[moto.modelo] || require('../assets/sport-2.webp')
-        }));
-        setMotos(mapped.reverse()); // Última adicionada primeiro
-      } else {
-        setMotos([]);
-      }
-    };
-    if (isFocused) fetchMotos();
-  }, [isFocused]);
-
-  const deleteMoto = async (placa: string) => {
-    Alert.alert('Confirmar', 'Deseja realmente apagar esta moto?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Excluir',
-        style: 'destructive',
-        onPress: async () => {
-          const data = await AsyncStorage.getItem('motos');
-          if (data) {
-            const parsed = JSON.parse(data);
-            const updated = parsed.filter((moto: Moto) => moto.placa !== placa);
-            await AsyncStorage.setItem('motos', JSON.stringify(updated));
-            setMotos(updated.reverse());
-          }
-        }
-      }
-    ]);
+  // Função para pegar o texto e a cor do status
+  const getStatusInfo = (moto: Moto) => {
+    if (moto.roubada) {
+      return { text: i18n.t('registerMoto.statusStolen'), color: styles.statusBO };
+    }
+    if (moto.falhaMecanica) {
+      return { text: i18n.t('registerMoto.statusMaint'), color: styles.statusMecanico };
+    }
+    return { text: i18n.t('registerMoto.statusReady'), color: styles.statusPronta };
   };
 
-  const getStatusColor = (moto: Moto) => {
-    if (moto.status.roubada) return '#FF4D4D';
-    if (moto.status.falhaMecanica) return '#FFA500';
-    return '#00C247';
-  };
-
-  const getDescricaoSituacao = (moto: Moto) => {
-    if (moto.status.roubada || moto.status.multa) return 'A moto está registrada com um boletim de ocorrência.';
-    if (moto.status.falhaMecanica) return 'A moto apresenta falha mecânica e está indisponível.';
-    return 'A moto está pronta para uso e não apresenta problemas.';
-  };
-
-  const renderItem = ({ item }: { item: Moto }) => (
-    <TouchableOpacity
-      style={[styles.card, { borderColor: getStatusColor(item) }]}
-      onPress={() => navigation.navigate('MotoDetail', { moto: item })}
-    >
-      <Image source={item.imagem} style={styles.image} />
-      <View style={styles.info}>
-        <Text style={styles.model}>{item.modelo}</Text>
-        <Text>Placa: {item.placa}</Text>
-        <Text style={styles.situacao}>{getDescricaoSituacao(item)}</Text>
-      </View>
-      <TouchableOpacity onPress={() => deleteMoto(item.placa)} style={styles.deleteButton}>
-        <Text style={styles.deleteText}>Excluir</Text>
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
+  const statusInfo = getStatusInfo(moto);
+  const imagem = imageMap[moto.modelo] || require('../assets/sport-2.webp');
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Detalhes</Text>
-      {motos.length === 0 ? (
-        <Text style={styles.emptyText}>Nenhuma moto cadastrada no momento.</Text>
-      ) : (
-        <FlatList
-          data={motos}
-          keyExtractor={(item, index) => `${item.placa}-${index}`}
-          renderItem={renderItem}
-        />
-      )}
+      <Text style={styles.title}>{i18n.t('motoDetail.title')}</Text>
+      
+      <Image source={imagem} style={styles.image} />
+      
+      <View style={styles.infoCard}>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>{i18n.t('motoDetail.model')}:</Text>
+          <Text style={styles.value}>{moto.modelo}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>{i18n.t('common.plate')}:</Text>
+          <Text style={styles.value}>{moto.placa}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>{i18n.t('motoDetail.zone')}:</Text>
+          <Text style={styles.value}>{moto.zona}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>{i18n.t('motoDetail.status')}:</Text>
+          <View style={[styles.statusBadge, statusInfo.color]}>
+            <Text style={styles.statusText}>{statusInfo.text}</Text>
+          </View>
+        </View>
+      </View>
     </View>
   );
 };
 
-export default MotoListScreen;
-
-const styles = StyleSheet.create({
+const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff'
+    padding: 20,
+    backgroundColor: colors.background,
+    alignItems: 'center',
   },
-  header: {
+  title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#00C247',
-    marginBottom: 16
-  },
-  card: {
-    flexDirection: 'row',
-    borderWidth: 2,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-    alignItems: 'center'
+    color: colors.tint,
+    marginBottom: 20,
   },
   image: {
-    width: 70,
-    height: 70,
+    width: '100%',
+    height: 200,
     resizeMode: 'contain',
-    marginRight: 16
+    borderRadius: 8,
+    marginBottom: 20,
   },
-  info: {
-    flex: 1
+  infoCard: {
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    padding: 20,
+    width: '100%',
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  model: {
-    fontSize: 18,
-    fontWeight: 'bold'
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingBottom: 15,
   },
-  situacao: {
-    marginTop: 6,
-    fontSize: 14,
-    color: '#555'
-  },
-  deleteButton: {
-    padding: 8
-  },
-  deleteText: {
-    fontSize: 14,
-    color: '#FF4D4D',
-    fontWeight: 'bold'
-  },
-  emptyText: {
+  label: {
     fontSize: 16,
-    color: '#888',
-    textAlign: 'center',
-    marginTop: 40
-  }
+    fontWeight: '600',
+    color: colors.text,
+  },
+  value: {
+    fontSize: 16,
+    color: colors.text,
+  },
+  statusBadge: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+  },
+  statusText: {
+    color: '#000000',
+    fontWeight: 'bold',
+  },
+  statusPronta: { backgroundColor: '#e6f8ed', borderColor: '#00C247', borderWidth: 1 },
+  statusMecanico: { backgroundColor: '#fff7cc', borderColor: '#ffcc00', borderWidth: 1 },
+  statusBO: { backgroundColor: '#ffdddd', borderColor: '#ff0000', borderWidth: 1 },
 });
+
+export default MotoDetailsScreen;
