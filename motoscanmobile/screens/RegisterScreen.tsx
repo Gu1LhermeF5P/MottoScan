@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import type { ColorPalette } from '../constants/Colors';
-import i18n from '../i18n.config'; // Importe o i18n
+import { useLocalization } from '../context/LocalizationContext'; 
 
 const RegisterScreen = ({ navigation }: any) => {
   const [nome, setNome] = useState('');
@@ -12,6 +12,7 @@ const RegisterScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const { colors } = useTheme();
+  const { i18n } = useLocalization(); 
   const styles = getStyles(colors);
 
   const handleRegister = async () => {
@@ -19,7 +20,6 @@ const RegisterScreen = ({ navigation }: any) => {
       Alert.alert(i18n.t('register.errorTitle'), i18n.t('register.errorFillAllFields'));
       return;
     }
-    
     setLoading(true);
     const success = await register(nome, email, senha);
     setLoading(false);
@@ -34,7 +34,6 @@ const RegisterScreen = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* Substitua os textos fixos por chaves i18n */}
       <Text style={styles.title}>{i18n.t('register.title')}</Text>
       <TextInput 
         style={styles.input} 
@@ -78,54 +77,14 @@ const RegisterScreen = ({ navigation }: any) => {
   );
 };
 
-// A função getStyles não muda
 const getStyles = (colors: ColorPalette) => StyleSheet.create({
-    container: { 
-      flex: 1, 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      padding: 20, 
-      backgroundColor: colors.background 
-    },
-    title: { 
-      fontSize: 28, 
-      fontWeight: 'bold', 
-      color: colors.tint, 
-      marginBottom: 30 
-    },
-    input: { 
-      width: '100%', 
-      height: 50, 
-      borderWidth: 1, 
-      borderColor: colors.border, 
-      borderRadius: 8, 
-      paddingHorizontal: 15, 
-      marginBottom: 15, 
-      fontSize: 16, 
-      color: colors.text 
-    },
-    button: { 
-      width: '100%', 
-      height: 50, 
-      backgroundColor: colors.tint, 
-      borderRadius: 8, 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      marginTop: 10 
-    },
-    buttonDisabled: { 
-      opacity: 0.7 
-    },
-    buttonText: { 
-      color: colors.background, 
-      fontSize: 18, 
-      fontWeight: 'bold' 
-    },
-    linkText: { 
-      color: colors.tint, 
-      marginTop: 20, 
-      fontSize: 16 
-    },
+    container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: colors.background },
+    title: { fontSize: 28, fontWeight: 'bold', color: colors.tint, marginBottom: 30 },
+    input: { width: '100%', height: 50, borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 15, marginBottom: 15, fontSize: 16, color: colors.text },
+    button: { width: '100%', height: 50, backgroundColor: colors.tint, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+    buttonDisabled: { opacity: 0.7 },
+    buttonText: { color: colors.background, fontSize: 18, fontWeight: 'bold' },
+    linkText: { color: colors.tint, marginTop: 20, fontSize: 16 },
 });
 
 export default RegisterScreen;

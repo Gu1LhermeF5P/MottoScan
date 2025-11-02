@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { 
-    View, Text, FlatList, Image, TouchableOpacity, 
-    StyleSheet, Alert, ActivityIndicator 
+    View, 
+    Text, 
+    FlatList, 
+    Image, 
+    TouchableOpacity, 
+    StyleSheet, 
+    Alert,
+    ActivityIndicator
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,7 +16,7 @@ import { getMotosFromAPI, deleteMotoFromAPI } from '../services/api';
 import type { RootStackParamList, Moto } from '../types';
 import { useTheme } from '../context/ThemeContext';
 import type { ColorPalette } from '../constants/Colors';
-import i18n from '../i18n.config'; // Importe o i18n
+import { useLocalization } from '../context/LocalizationContext'; // 1. Importe o novo hook
 
 const imageMap: Record<string, any> = {
   'MOTO SPORT': require('../assets/sport-2.webp'),
@@ -25,6 +31,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MotoList'>;
 const MotoListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
+  const { i18n } = useLocalization(); // 2. Obtenha o i18n do contexto
   const styles = getStyles(colors);
 
   const [motos, setMotos] = useState<Moto[]>([]);
@@ -57,7 +64,6 @@ const MotoListScreen: React.FC = () => {
   const deleteMoto = async (placa: string) => {
     Alert.alert(
       i18n.t('motoList.deleteConfirmTitle'),
-      // Usamos a interpolação para adicionar a placa à mensagem
       i18n.t('motoList.deleteConfirmMessage', { plate: placa }),
       [
         { text: i18n.t('common.cancel'), style: 'cancel' },
@@ -84,7 +90,12 @@ const MotoListScreen: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: Moto }) => (
-    <View style={[styles.card, { borderColor: getStatusColor(item) }]}>
+    // O TouchableOpacity para o card de detalhes já estava no código anterior,
+    // mas não foi enviado neste. Vou adicioná-lo de volta.
+    <TouchableOpacity 
+      style={[styles.card, { borderColor: getStatusColor(item) }]}
+      onPress={() => navigation.navigate('MotoDetail', { moto: item })}
+    >
       <Image source={item.imagem} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.model}>{item.modelo}</Text>
@@ -94,15 +105,20 @@ const MotoListScreen: React.FC = () => {
       <View style={styles.actionsContainer}>
         <TouchableOpacity 
           style={styles.editButton} 
+          onPressIn={(e) => e.stopPropagation()} // Evita o clique no card
           onPress={() => navigation.navigate('EditMoto', { moto: item })}
         >
           <Text style={styles.editText}>{i18n.t('common.edit')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => deleteMoto(item.placa)} style={styles.deleteButton}>
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPressIn={(e) => e.stopPropagation()} // Evita o clique no card
+          onPress={() => deleteMoto(item.placa)}
+        >
           <Text style={styles.deleteText}>{i18n.t('common.delete')}</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -132,6 +148,7 @@ const MotoListScreen: React.FC = () => {
   );
 };
 
+// A função getStyles não muda
 const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,

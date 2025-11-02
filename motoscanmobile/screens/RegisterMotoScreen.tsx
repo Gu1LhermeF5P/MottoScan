@@ -10,7 +10,7 @@ import { saveMotoToAPI } from '../services/api';
 import { RootStackParamList } from '../types/index';
 import { useTheme } from '../context/ThemeContext';
 import type { ColorPalette } from '../constants/Colors';
-import i18n from '../i18n.config'; // Importe o i18n
+import { useLocalization } from '../context/LocalizationContext'; 
 
 const motoModelos = [
   { nome: 'MOTO SPORT', imagem: require('../assets/sport-2.webp') },
@@ -21,11 +21,13 @@ const motoModelos = [
 const RegisterMotoScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { colors, isDarkMode } = useTheme();
+  const { i18n } = useLocalization(); 
   const styles = getStyles(colors, isDarkMode);
 
   const [placa, setPlaca] = useState('');
   const [modeloSelecionado, setModeloSelecionado] = useState(motoModelos[1]);
-  // Ajustamos os status para usarem as chaves de tradução
+  
+
   const statusOptions = {
     PRONTA: i18n.t('registerMoto.statusReady'),
     MECANICO: i18n.t('registerMoto.statusMaint'),
@@ -81,6 +83,7 @@ const RegisterMotoScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+    
       <Text style={styles.title}>{i18n.t('registerMoto.title')}</Text>
 
       <Text style={styles.label}>{i18n.t('registerMoto.plateLabel')}</Text>
@@ -117,7 +120,6 @@ const RegisterMotoScreen: React.FC = () => {
 
       <Text style={styles.label}>{i18n.t('registerMoto.statusLabel')}</Text>
       <View style={styles.statusContainer}>
-        {/* Mapeia as chaves do objeto de status para criar os botões */}
         {(Object.keys(statusOptions) as Array<keyof typeof statusOptions>).map((key) => (
           <TouchableOpacity
             key={key}

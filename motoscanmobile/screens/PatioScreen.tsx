@@ -5,11 +5,12 @@ import { useIsFocused } from '@react-navigation/native';
 import { getMotosFromAPI } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 import { Moto } from '../types';
-import i18n from '../i18n.config'; // Importe o i18n
-import type { ColorPalette } from '../constants/Colors'; // Importe o tipo de Cor
+import type { ColorPalette } from '../constants/Colors';
+import { useLocalization } from '../context/LocalizationContext'; 
 
 const PatioScreen: React.FC = () => {
   const { colors } = useTheme();
+  const { i18n } = useLocalization(); 
   const styles = getStyles(colors);
   
   const [motos, setMotos] = useState<Moto[]>([]);
@@ -52,9 +53,9 @@ const PatioScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
+      
       <Text style={styles.header}>{i18n.t('patio.title')}</Text>
       
-      {/* Zona de Motos Disponíveis */}
       <View style={[styles.zone, styles.zoneDisponivel]}>
         <Text style={styles.zoneTitle}>
           {i18n.t('patio.zoneAvailable')} ({motosPorStatus.prontas.length})
@@ -66,7 +67,6 @@ const PatioScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Zona de Motos em Manutenção */}
       <View style={[styles.zone, styles.zoneManutencao]}>
         <Text style={styles.zoneTitle}>
           {i18n.t('patio.zoneMaintenance')} ({motosPorStatus.emManutencao.length})
@@ -78,7 +78,6 @@ const PatioScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Zona de Motos com B.O. */}
       <View style={[styles.zone, styles.zoneBO]}>
         <Text style={styles.zoneTitle}>
           {i18n.t('patio.zoneStolen')} ({motosPorStatus.comBO.length})

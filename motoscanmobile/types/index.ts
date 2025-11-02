@@ -1,4 +1,12 @@
-// types/index.ts
+import { NavigatorScreenParams } from '@react-navigation/native';
+
+export type TabParamList = {
+  Home: undefined;
+  "Cadastrar Moto": undefined; 
+  Motos: undefined;
+  "Pátio": undefined;
+};
+
 
 export type Moto = {
   id: number;
@@ -13,17 +21,16 @@ export type Moto = {
   imagem?: any;
 };
 
-// COLE O TIPO DA NAVEGAÇÃO AQUI 👇
+
 export type RootStackParamList = {
-  Welcome: undefined;
+  
   Login: undefined;
-  Home: undefined;
-  Detalhes: undefined;
-  Cadastrar: undefined;
-  Motos: undefined;
-  Patio: { moto?: Moto };
-  RegisterMoto: undefined;
-  MotoList: undefined;
-  MotoDetail: { moto: Moto };
+  Register: undefined;
+  
+  
+  AppTabs: NavigatorScreenParams<TabParamList>;
+  
+  
   EditMoto: { moto: Moto };
+  MotoDetail: { moto: Moto };
 };

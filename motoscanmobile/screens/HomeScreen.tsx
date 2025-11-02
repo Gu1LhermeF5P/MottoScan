@@ -1,41 +1,61 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-import { RootStackParamList } from '../types/index';
+import type { TabParamList } from '../types'; 
 import { useTheme } from '../context/ThemeContext';
-import { useAuth } from '../context/AuthContext';
-import i18n from '../i18n.config'; // 1. Importe o i18n
-import type { ColorPalette } from '../constants/Colors'; // Importe o tipo de Cor
+import { useLocalization } from '../context/LocalizationContext';
+import type { ColorPalette } from '../constants/Colors';
+
+
+type HomeScreenNavigationProp = BottomTabNavigationProp<TabParamList, 'Home'>;
 
 const HomeScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const { colors, isDarkMode, toggleTheme } = useTheme();
-  const { logout } = useAuth(); // A lógica de logout continua no App.tsx, mas a de tema está aqui
+  const { i18n, locale, setLocale } = useLocalization(); 
   
   const styles = getStyles(colors);
 
+  const handleLanguageChange = () => {
+    if (locale === 'pt') {
+      setLocale('es');
+    } else if (locale === 'es') {
+      setLocale('en');
+    } else {
+      setLocale('pt');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* Botão para trocar o tema */}
-      <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
-        <Ionicons 
-          name={isDarkMode ? 'sunny-outline' : 'moon-outline'} 
-          size={24} 
-          color={colors.tint} 
-        />
-      </TouchableOpacity>
+      
+      <View style={styles.headerButtons}>
+        <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+          <Ionicons 
+            name={isDarkMode ? 'sunny-outline' : 'moon-outline'} 
+            size={24} 
+            color={colors.tint} 
+          />
+        </TouchableOpacity>
+        
+       
+        <TouchableOpacity onPress={handleLanguageChange} style={styles.languageButton}>
+          <Text style={styles.languageButtonText}>{locale.toUpperCase()}</Text>
+        </TouchableOpacity>
+      </View>
 
       <Image source={require('../assets/icon.png')} style={styles.logo} />
       
-      {/* 2. Textos atualizados para usar o i18n */}
       <Text style={styles.welcome}>{i18n.t('home.welcome')}</Text>
       <Text style={styles.description}>{i18n.t('home.description')}</Text>
 
       <TouchableOpacity
         style={styles.button}
+        
         onPress={() => navigation.navigate('Cadastrar Moto')}
       >
         <Text style={styles.buttonText}>{i18n.t('home.register_moto_button')}</Text>
@@ -51,7 +71,8 @@ const HomeScreen: React.FC = () => {
   );
 };
 
-const getStyles = (colors: ColorPalette) => StyleSheet.create({ // Use o tipo ColorPalette
+
+const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -59,11 +80,28 @@ const getStyles = (colors: ColorPalette) => StyleSheet.create({ // Use o tipo Co
     alignItems: 'center',
     padding: 20,
   },
-  themeButton: {
+  headerButtons: {
     position: 'absolute',
     top: 50,
     right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  themeButton: {
     padding: 10,
+  },
+  languageButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    marginLeft: 10,
+    borderWidth: 1,
+    borderColor: colors.tint,
+    borderRadius: 5,
+  },
+  languageButtonText: {
+    color: colors.tint,
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   logo: {
     width: 120,

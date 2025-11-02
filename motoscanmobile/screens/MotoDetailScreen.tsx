@@ -3,11 +3,10 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import type { ColorPalette } from '../constants/Colors';
-import i18n from '../i18n.config';
+import { useLocalization } from '../context/LocalizationContext'; 
 import type { RootStackParamList, Moto } from '../types';
 
 type MotoDetailsScreenRouteProp = RouteProp<RootStackParamList, 'MotoDetail'>;
-
 
 const imageMap: Record<string, any> = {
   'MOTO SPORT': require('../assets/sport-2.webp'),
@@ -20,11 +19,12 @@ const imageMap: Record<string, any> = {
 const MotoDetailsScreen: React.FC = () => {
   const route = useRoute<MotoDetailsScreenRouteProp>();
   const { colors } = useTheme();
+  const { i18n } = useLocalization(); 
   const styles = getStyles(colors);
 
   const { moto } = route.params;
 
-  // Função para pegar o texto e a cor do status
+  
   const getStatusInfo = (moto: Moto) => {
     if (moto.roubada) {
       return { text: i18n.t('registerMoto.statusStolen'), color: styles.statusBO };
@@ -40,6 +40,7 @@ const MotoDetailsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      
       <Text style={styles.title}>{i18n.t('motoDetail.title')}</Text>
       
       <Image source={imagem} style={styles.image} />

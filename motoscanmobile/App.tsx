@@ -7,9 +7,11 @@ import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
-import i18n from './i18n.config'; // Importe o i18n para os títulos
+import { LocalizationProvider, useLocalization } from './context/LocalizationContext';
 
-// Importe todas as suas telas
+import type { RootStackParamList, TabParamList } from './types';
+
+
 import HomeScreen from './screens/HomeScreen';
 import RegisterMotoScreen from './screens/RegisterMotoScreen';
 import MotoListScreen from './screens/MotoListScreen';
@@ -19,12 +21,14 @@ import RegisterScreen from './screens/RegisterScreen';
 import EditMotoScreen from './screens/EditMotoScreen';
 import MotoDetailsScreen from './screens/MotoDetailScreen';
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+// Use os tipos corretos ao criar os navegadores
+const Tab = createBottomTabNavigator<TabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppTabs() {
   const { colors } = useTheme();
   const { logout } = useAuth(); 
+  const { i18n } = useLocalization();
 
   return (
     <Tab.Navigator
@@ -38,7 +42,6 @@ function AppTabs() {
         headerStyle: { backgroundColor: colors.background },
         headerTitleStyle: { color: colors.text },
 
-        
         headerRight: () => (
           <TouchableOpacity onPress={logout} style={{ marginRight: 15 }}>
             <Ionicons name="log-out-outline" size={26} color={colors.text} />
@@ -48,13 +51,15 @@ function AppTabs() {
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'alert';
           if (route.name === 'Home') iconName = 'home-outline';
-          else if (route.name === 'Cadastrar Moto') iconName = 'add-circle-outline';
-          else if (route.name === 'Motos') iconName = 'bicycle-outline';
-          else if (route.name === 'Pátio') iconName = 'map-outline';
+          
+          else if (route.name === i18n.t('home.register_moto_button')) iconName = 'add-circle-outline';
+          else if (route.name === i18n.t('home.view_motos_button')) iconName = 'bicycle-outline';
+          else if (route.name === 'Pátio') iconName = 'map-outline'; 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
     >
+      
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Cadastrar Moto" component={RegisterMotoScreen} />
       <Tab.Screen name="Motos" component={MotoListScreen} />
@@ -74,6 +79,7 @@ function AuthStack() {
 
 function AppStack() {
   const { colors } = useTheme();
+  const { i18n } = useLocalization();
 
   return (
     <Stack.Navigator>
@@ -87,22 +93,21 @@ function AppStack() {
         component={EditMotoScreen} 
         options={{ 
           headerShown: true, 
-          title: i18n.t('editMoto.title'), 
+          title: i18n.t('editMoto.title'),
           headerStyle: { backgroundColor: colors.background },
           headerTitleStyle: { color: colors.text },
           headerTintColor: colors.tint,
         }} 
       />
-      
       <Stack.Screen 
         name="MotoDetail" 
         component={MotoDetailsScreen} 
         options={{ 
           headerShown: true, 
-          title: i18n.t('motoDetail.title'), 
+          title: i18n.t('motoDetail.title'),
           headerStyle: { backgroundColor: colors.background },
           headerTitleStyle: { color: colors.text },
-          headerTintColor: colors.tint, 
+          headerTintColor: colors.tint,
         }} 
       />
     </Stack.Navigator>
@@ -135,6 +140,7 @@ function AppNavigator() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
+      
       {token ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
@@ -143,9 +149,11 @@ function AppNavigator() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <AppNavigator />
-      </AuthProvider>
+      <LocalizationProvider>
+        <AuthProvider>
+          <AppNavigator />
+        </AuthProvider>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

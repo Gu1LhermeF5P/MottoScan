@@ -3,20 +3,20 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import type { ColorPalette } from '../constants/Colors';
-import i18n from '../i18n.config'; 
+import { useLocalization } from '../context/LocalizationContext'; 
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const { colors } = useTheme(); 
+  const { colors } = useTheme();
+  const { i18n } = useLocalization(); 
   
   const styles = getStyles(colors);
 
   const handleLogin = async () => {
     if (!email.trim() || !senha.trim()) {
-      // Você também pode traduzir os alertas!
       Alert.alert(i18n.t('login.errorTitle'), i18n.t('login.errorFillAllFields'));
       return;
     }
@@ -30,7 +30,7 @@ const LoginScreen = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* 2. Substitua os textos fixos por chaves i18n */}
+      
       <Text style={styles.title}>{i18n.t('login.title')}</Text>
       <TextInput
         style={styles.input}
@@ -67,7 +67,6 @@ const LoginScreen = ({ navigation }: any) => {
   );
 };
 
-// A função getStyles não muda
 const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
     flex: 1,

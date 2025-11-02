@@ -7,7 +7,7 @@ import { updateMotoAPI } from '../services/api';
 import type { RootStackParamList, Moto } from '../types';
 import { useTheme } from '../context/ThemeContext';
 import type { ColorPalette } from '../constants/Colors';
-import i18n from '../i18n.config'; // Importe o i18n
+import { useLocalization } from '../context/LocalizationContext'; 
 
 type EditMotoScreenRouteProp = RouteProp<RootStackParamList, 'EditMoto'>;
 
@@ -15,6 +15,7 @@ const EditMotoScreen: React.FC = () => {
   const route = useRoute<EditMotoScreenRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { colors } = useTheme();
+  const { i18n } = useLocalization(); 
   const styles = getStyles(colors);
 
   const { moto: motoOriginal } = route.params;
@@ -53,12 +54,12 @@ const EditMotoScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      
       <Text style={styles.title}>{i18n.t('editMoto.title')}</Text>
 
       <Text style={styles.label}>{i18n.t('editMoto.plateLabel')}</Text>
       <Text style={styles.placaText}>{motoOriginal.placa}</Text>
 
-      {/* Reaproveitando a chave de tradução da tela de registro */}
       <Text style={styles.label}>{i18n.t('registerMoto.modelLabel')}</Text>
       <TextInput
         style={styles.input}
@@ -75,13 +76,11 @@ const EditMotoScreen: React.FC = () => {
         placeholderTextColor={colors.border}
       />
 
-      {/* Reaproveitando a chave de tradução da tela de registro */}
       <Text style={styles.label}>{i18n.t('registerMoto.statusLabel')}</Text>
       <View style={styles.statusContainer}>
         <TouchableOpacity 
             style={[styles.statusButton, falhaMecanica && styles.statusMecanico]}
             onPress={() => setFalhaMecanica(!falhaMecanica)}>
-            {/* Reaproveitando a chave de tradução */}
             <Text style={[styles.statusButtonText, falhaMecanica && styles.selectedStatusText]}>
               {i18n.t('registerMoto.statusMaint')}
             </Text>
@@ -89,7 +88,6 @@ const EditMotoScreen: React.FC = () => {
         <TouchableOpacity 
             style={[styles.statusButton, roubada && styles.statusBO]}
             onPress={() => setRoubada(!roubada)}>
-            {/* Reaproveitando a chave de tradução */}
             <Text style={[styles.statusButtonText, roubada && styles.selectedStatusText]}>
               {i18n.t('registerMoto.statusStolen')}
             </Text>
