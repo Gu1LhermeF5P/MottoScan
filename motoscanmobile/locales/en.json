@@ -1,0 +1,22 @@
+{
+  "login": {
+    "title": "MotoScan - Login",
+    "email": "Email",
+    "password": "Password",
+    "button": "Sign In",
+    "register_link": "Don't have an account? Sign Up"
+  },
+  "register": {
+    "title": "Create Account",
+    "name": "Full Name",
+    "button": "Sign Up",
+    "login_link": "Already have an account? Sign In"
+  },
+  "home": {
+    "welcome": "Welcome to MotoScan",
+    "description": "Manage the status of the Mottu fleet motorcycles with agility and control.",
+    "register_moto_button": "Register Moto",
+    "view_motos_button": "View Motos",
+    "logout_button": "Log Out"
+  }
+}

@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect, useContext, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const API_URL = 'http://192.168.0.119:8080/auth';
+const API_URL = 'http://192.168.0.108:8080/auth';
 
 
 interface AuthContextData {

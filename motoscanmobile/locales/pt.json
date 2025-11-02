@@ -1,0 +1,22 @@
+{
+  "login": {
+    "title": "MotoScan - Login",
+    "email": "Email",
+    "password": "Senha",
+    "button": "Entrar",
+    "register_link": "Não tem uma conta? Cadastre-se"
+  },
+  "register": {
+    "title": "Criar Conta",
+    "name": "Nome Completo",
+    "button": "Cadastrar",
+    "login_link": "Já tem uma conta? Faça login"
+  },
+  "home": {
+    "welcome": "Bem-vindo ao MotoScan",
+    "description": "Gerencie o status das motos da frota Mottu com agilidade e controle.",
+    "register_moto_button": "Cadastrar Moto",
+    "view_motos_button": "Visualizar Motos",
+    "logout_button": "Sair da Conta"
+  }
+}

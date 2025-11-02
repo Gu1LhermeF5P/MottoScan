@@ -1,0 +1,22 @@
+{
+  "login": {
+    "title": "MotoScan - Iniciar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "button": "Ingresar",
+    "register_link": "¿No tienes una cuenta? Regístrate"
+  },
+  "register": {
+    "title": "Crear Cuenta",
+    "name": "Nombre Completo",
+    "button": "Registrar",
+    "login_link": "¿Ya tienes una cuenta? Inicia sesión"
+  },
+  "home": {
+    "welcome": "Bienvenido a MotoScan",
+    "description": "Gestione el estado de las motos de la flota Mottu con agilidad y control.",
+    "register_moto_button": "Registrar Moto",
+    "view_motos_button": "Ver Motos",
+    "logout_button": "Cerrar Sesión"
+  }
+}
