@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Moto } from '../types';
 
-const API_URL = 'http://192.168.0.108:8080';
+const API_URL = 'https://motoscan-api-mobile.onrender.com';
 
 
 const getAuthHeaders = async () => {

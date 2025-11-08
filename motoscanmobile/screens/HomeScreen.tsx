@@ -1,23 +1,24 @@
+// screens/HomeScreen.tsx
+
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-import type { TabParamList } from '../types'; 
+import type { TabParamList } from '../types';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalization } from '../context/LocalizationContext';
 import type { ColorPalette } from '../constants/Colors';
 
-
 type HomeScreenNavigationProp = BottomTabNavigationProp<TabParamList, 'Home'>;
 
 const HomeScreen: React.FC = () => {
-  
+
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { colors, isDarkMode, toggleTheme } = useTheme();
-  const { i18n, locale, setLocale } = useLocalization(); 
-  
+  const { i18n, locale, setLocale } = useLocalization();
+
   const styles = getStyles(colors);
 
   const handleLanguageChange = () => {
@@ -32,45 +33,42 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      
+
       <View style={styles.headerButtons}>
         <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
-          <Ionicons 
-            name={isDarkMode ? 'sunny-outline' : 'moon-outline'} 
-            size={24} 
-            color={colors.tint} 
+          <Ionicons
+            name={isDarkMode ? 'sunny-outline' : 'moon-outline'}
+            size={24}
+            color={colors.tint}
           />
         </TouchableOpacity>
-        
-       
+
         <TouchableOpacity onPress={handleLanguageChange} style={styles.languageButton}>
           <Text style={styles.languageButtonText}>{locale.toUpperCase()}</Text>
         </TouchableOpacity>
       </View>
 
       <Image source={require('../assets/icon.png')} style={styles.logo} />
-      
+
       <Text style={styles.welcome}>{i18n.t('home.welcome')}</Text>
       <Text style={styles.description}>{i18n.t('home.description')}</Text>
 
       <TouchableOpacity
         style={styles.button}
-        
-        onPress={() => navigation.navigate('Cadastrar Moto')}
+        onPress={() => navigation.navigate('RegisterMoto')}
       >
         <Text style={styles.buttonText}>{i18n.t('home.register_moto_button')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('Motos')}
+        onPress={() => navigation.navigate('MotoList')}
       >
         <Text style={styles.buttonText}>{i18n.t('home.view_motos_button')}</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
 
 const getStyles = (colors: ColorPalette) => StyleSheet.create({
   container: {
