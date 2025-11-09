@@ -192,6 +192,6 @@ link[[api_java](https://github.com/Gu1LhermeF5P/api_java)]
 
 Assista a uma demonstração completa da aplicação, apresentando as principais funcionalidades, fluxos de usuário e a tecnologia por trás do projeto.
 
-**[[➡️[ Link para o Vídeo de Demonstração]([https://youtu.be/5iowC64x4SE](https://youtu.be/_cCb9lbZDQg)) (Clique Aqui)]**
+**[[➡️[ Link para o Vídeo de Demonstração](https://youtu.be/_cCb9lbZDQg) (Clique Aqui)]**
 
 ---
